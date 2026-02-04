@@ -1,0 +1,44 @@
+# Package managers
+node_modules/
+.pnpm-store/
+.pnp
+.pnp.*
+yarn-error.log*
+npm-debug.log*
+
+# Build outputs
+dist/
+build/
+*.log
+
+# Environment files
+.env
+.env*.local
+.env.production
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Cache directories
+.cache/
+.turbo/
+.next/
+.vercel/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+*.pem
+*.key
+*.crt
+*.cer
+
+# TypeScript
+*.tsbuildinfo

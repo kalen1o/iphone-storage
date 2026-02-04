@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-background-primary: #050505;
+    --color-background-secondary: #0A0A0C;
+    --color-accent-primary: #3A6DFF;
+    --color-accent-secondary: #6FE3FF;
+  }
+
+  body {
+    @apply bg-background-primary text-gray-900;
+    scroll-behavior: smooth;
+  }
+
+  * {
+    @apply border-white/10;
+  }
+}
+
+@layer utilities {
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .scroll-prompt {
+    animation: scrollPrompt 1.5s ease-in-out infinite;
+  }
+
+  @keyframes scrollPrompt {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(12px);
+    }
+  }
+}
