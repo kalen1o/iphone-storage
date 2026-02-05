@@ -2,6 +2,7 @@ import { StoryBeat } from './StoryBeat';
 import { STORY_BEAT_CONTENT } from '~/constants/content';
 import { motion } from 'framer-motion';
 import { Link } from '@remix-run/react';
+import { Button } from '~/components/ui/button';
 
 export function HeroContent({ opacity, zIndex }: { opacity: number; zIndex: number }) {
   return (
@@ -19,15 +20,12 @@ export function HeroContent({ opacity, zIndex }: { opacity: number; zIndex: numb
           <p className="text-2xl md:text-3xl text-white/80 mb-8">
             {STORY_BEAT_CONTENT.HERO.subheadline}
           </p>
-          <p className="text-lg text-accent-primary font-medium">
+          <p className="text-lg text-primary font-medium">
             {STORY_BEAT_CONTENT.HERO.tagline}
           </p>
-          <Link
-            to="/product/iphone-17-pro-max"
-            className="inline-block bg-accent-primary hover:bg-accent-secondary text-white px-8 py-4 rounded-lg font-semibold text-xl transition-all hover:scale-105 mt-8"
-          >
-            Buy Now
-          </Link>
+          <Button asChild size="lg" className="mt-8 text-xl px-8 py-6 rounded-lg">
+            <Link to="/products">Buy Now</Link>
+          </Button>
         </motion.div>
       </div>
     </StoryBeat>
@@ -148,12 +146,9 @@ export function ReassemblyContent({ opacity, zIndex }: { opacity: number; zIndex
           >
             {STORY_BEAT_CONTENT.REASSEMBLY.subheadline}
           </motion.p>
-          <Link
-            to="/product/iphone-17-pro-max"
-            className="inline-block bg-accent-primary hover:bg-accent-secondary text-white px-8 py-4 rounded-lg font-semibold text-xl transition-all hover:scale-105"
-          >
-            {STORY_BEAT_CONTENT.REASSEMBLY.cta}
-          </Link>
+          <Button asChild size="lg" className="text-xl px-8 py-6 rounded-lg">
+            <Link to="/products">{STORY_BEAT_CONTENT.REASSEMBLY.cta}</Link>
+          </Button>
         </div>
       </div>
     </StoryBeat>

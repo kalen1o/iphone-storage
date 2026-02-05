@@ -13,7 +13,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./shared/db/migrations:/docker-entrypoint-initdb.d
-      - ./shared/db/seeds/001_sample_data.sql:/docker-entrypoint-initdb.d/002_seed_data.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin}"]
       interval: 10s
@@ -241,7 +240,8 @@ services:
       dockerfile: Dockerfile
     container_name: online-storage-frontend
     environment:
-      REMIX_PUBLIC_API_URL: https://localhost/api
+      REMIX_PUBLIC_API_URL: http://nginx-gateway/api
+      SESSION_SECRET: ${SESSION_SECRET:-dev-session-secret-change-me}
       REMIX_NODE_ENV: ${ENVIRONMENT:-production}
     ports:
       - "3000:3000"

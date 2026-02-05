@@ -95,6 +95,7 @@ func main() {
 
 	protected := api.PathPrefix("").Subrouter()
 	protected.Use(middleware.NewAuthMiddleware(jwt).Authenticate)
+	protected.HandleFunc("/auth/me", authCtrl.Me).Methods(http.MethodGet)
 	protected.HandleFunc("/orders", ordersCtrl.CreateOrder).Methods(http.MethodPost)
 	protected.HandleFunc("/orders/{id}", ordersCtrl.GetOrder).Methods(http.MethodGet)
 

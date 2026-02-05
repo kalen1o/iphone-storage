@@ -9,6 +9,7 @@ import (
 
 	"github.com/kalen1o/iphone-storage/apps/core-api/internal/auth/repo"
 	"github.com/kalen1o/iphone-storage/apps/core-api/internal/auth/service"
+	"github.com/kalen1o/iphone-storage/apps/core-api/internal/http/middleware"
 	"github.com/kalen1o/iphone-storage/apps/core-api/internal/platform/httpjson"
 )
 
@@ -100,4 +101,28 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
 		"token": token,
 		"user":  user,
 	})
+}
+
+// Me godoc
+// @Summary Current user
+// @Tags auth
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} repo.User
+// @Failure 401 {object} map[string]any
+// @Router /api/auth/me [get]
+func (c *Controller) Me(w http.ResponseWriter, r *http.Request) {
+	email, ok := middleware.EmailFromContext(r.Context())
+	if !ok {
+		httpjson.WriteError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	u, err := c.svc.GetUserByEmail(r.Context(), email)
+	if err != nil {
+		httpjson.WriteError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	httpjson.WriteJSON(w, http.StatusOK, u)
 }

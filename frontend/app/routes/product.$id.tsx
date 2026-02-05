@@ -1,40 +1,57 @@
-import { Link, useLoaderData, useNavigate } from '@remix-run/react';
-import type { LoaderFunctionArgs } from '@remix-run/node';
+import { Link, useLoaderData } from '@remix-run/react';
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { useCartStore } from '~/lib/stores/cartStore';
-import { IPHONE_17_PRO_MAX } from '~/lib/products';
+import { apiFetch } from '~/lib/api.server';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { Check } from 'lucide-react';
+import { Button } from '~/components/ui/button';
+import { Label } from '~/components/ui/label';
 
-export function loader({ params }: LoaderFunctionArgs) {
-  const product = params.id === 'iphone-17-pro-max' ? IPHONE_17_PRO_MAX : null;
-  return { product };
+type Product = {
+  id: string;
+  name: string;
+  description?: string;
+  sku: string;
+  price: number;
+  images?: string[];
+  metadata?: {
+    features?: string[];
+    specifications?: Record<string, string>;
+  };
+};
+
+export async function loader({ params }: LoaderFunctionArgs) {
+  if (!params.id) return { product: null as Product | null };
+  try {
+    const product = await apiFetch<Product>(`/products/${params.id}`);
+    return { product };
+  } catch {
+    return { product: null as Product | null };
+  }
 }
 
-export function meta({ data }: { data: typeof loader }) {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
-    { title: data.product?.name || 'Product Not Found' },
-    { description: data.product?.description || '' },
+    { title: data?.product?.name || 'Product Not Found' },
+    { description: data?.product?.description || '' },
   ];
-}
+};
 
 export default function ProductDetail() {
   const { product } = useLoaderData<typeof loader>();
-  const navigate = useNavigate();
   const addToCart = useCartStore((state) => state.addToCart);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-primary">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-white mb-4">Product Not Found</h1>
-          <Link
-            to="/"
-            className="inline-block bg-accent-primary hover:bg-accent-secondary text-white px-6 py-3 rounded-lg font-semibold transition-all"
-          >
-            Back to Home
-          </Link>
+          <h1 className="text-3xl font-bold text-foreground mb-4">Product Not Found</h1>
+          <Button asChild>
+            <Link to="/">Back to Home</Link>
+          </Button>
         </div>
       </div>
     );
@@ -48,28 +65,13 @@ export default function ProductDetail() {
       quantity,
       price: product.price,
       name: product.name,
-      image: product.images[0],
+      image: product.images?.[0],
     });
     setIsAdding(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background-primary to-background-secondary">
-      {/* Header */}
-      <nav className="sticky top-0 z-40 bg-background-primary/80 backdrop-blur-lg border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="text-white font-bold text-xl">
-            iPhone 17 Pro Max
-          </Link>
-          <Link
-            to="/"
-            className="text-white/70 hover:text-white transition-colors"
-          >
-            Back
-          </Link>
-        </div>
-      </nav>
-
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
       {/* Product Details */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
@@ -81,9 +83,9 @@ export default function ProductDetail() {
             className="relative"
           >
             <div className="aspect-[4/5] bg-black/20 rounded-2xl overflow-hidden">
-              {product.images[0]?.endsWith('.mp4') ? (
+              {product.images?.[0]?.endsWith('.mp4') ? (
                 <video
-                  src={product.images[0]}
+                  src={product.images?.[0]}
                   className="w-full h-full object-cover"
                   muted
                   loop
@@ -92,7 +94,7 @@ export default function ProductDetail() {
                 />
               ) : (
                 <img
-                  src={product.images[0] || '/placeholder.jpg'}
+                  src={product.images?.[0] || '/placeholder.jpg'}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
@@ -106,117 +108,112 @@ export default function ProductDetail() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
               {product.name}
             </h1>
 
-            <p className="text-lg text-white/80 mb-8">
+            <p className="text-lg text-foreground/80 mb-8">
               {product.description}
             </p>
 
             {/* Price */}
             <div className="mb-8">
               <div className="flex items-baseline gap-3">
-                <span className="text-5xl font-bold text-accent-primary">
+                <span className="text-5xl font-bold text-primary">
                   ${product.price.toLocaleString()}
                 </span>
-                {product.compareAtPrice && (
-                  <span className="text-2xl text-white/50 line-through">
-                    ${product.compareAtPrice.toLocaleString()}
-                  </span>
-                )}
               </div>
-              <p className="text-sm text-white/60">
+              <p className="text-sm text-muted-foreground">
                 Or ${Math.round(product.price / 24).toLocaleString()}/month with Apple Card
               </p>
             </div>
 
             {/* Features */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-white mb-4">Features</h3>
-              <ul className="space-y-3">
-                {product.features.map((feature, index) => (
-                  <motion.li
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1, duration: 0.4 }}
-                    className="flex items-center gap-3 text-white/90"
-                  >
-                    <svg className="w-5 h-5 text-accent-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    {feature}
-                  </motion.li>
-                ))}
-              </ul>
-            </div>
+            {product.metadata?.features?.length ? (
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-foreground mb-4">Features</h3>
+                <ul className="space-y-3">
+                  {product.metadata.features.map((feature, index) => (
+                    <motion.li
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1, duration: 0.4 }}
+                      className="flex items-center gap-3 text-foreground/90"
+                    >
+                      <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                      {feature}
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
 
             {/* Specifications */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-white mb-4">Specifications</h3>
-              <dl className="space-y-3 text-white/90">
-                {Object.entries(product.specifications).map(([key, value]) => (
-                  <div className="flex justify-between py-2 border-b border-white/10">
-                    <dt className="font-medium">{key}</dt>
-                    <dd>{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
+            {product.metadata?.specifications ? (
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-foreground mb-4">Specifications</h3>
+                <dl className="space-y-3 text-foreground/90">
+                  {Object.entries(product.metadata.specifications).map(([key, value]) => (
+                    <div key={key} className="flex justify-between py-2 border-b border-border/10">
+                      <dt className="font-medium">{key}</dt>
+                      <dd>{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ) : null}
 
             {/* Quantity Selector */}
             <div className="mb-8">
-              <label className="block text-sm font-medium text-white mb-2">Quantity</label>
+              <Label className="block mb-2">Quantity</Label>
               <div className="flex items-center gap-4">
-                <button
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="icon"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   disabled={quantity <= 1}
-                  className="w-12 h-12 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-12 h-12 rounded-lg"
                 >
                   −
-                </button>
-                <span className="text-2xl font-bold text-white w-12 text-center">
+                </Button>
+                <span className="text-2xl font-bold text-foreground w-12 text-center">
                   {quantity}
                 </span>
-                <button
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="icon"
                   onClick={() => setQuantity(quantity + 1)}
-                  className="w-12 h-12 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold transition-all"
+                  className="w-12 h-12 rounded-lg"
                 >
                   +
-                </button>
+                </Button>
               </div>
             </div>
 
             {/* Add to Cart Button */}
-            <motion.button
-              onClick={handleAddToCart}
-              disabled={isAdding || !product.inStock}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className={`w-full bg-accent-primary hover:bg-accent-secondary text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              {isAdding ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12c0 4.411 3.589 8 8 8v4h-6v-4c0-2.757 2.243-5 5-5h4z"></path>
-                  </svg>
-                  Adding to Cart...
-                </span>
-              ) : product.inStock ? (
-                'Add to Cart'
-              ) : (
-                'Out of Stock'
-              )}
-            </motion.button>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={isAdding}
+                className="w-full py-6 text-lg rounded-lg"
+              >
+                {isAdding ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-5 h-5 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                    Adding to Cart...
+                  </span>
+                ) : (
+                  'Add to Cart'
+                )}
+              </Button>
+            </motion.div>
 
             {/* Stock Status */}
-            {product.inStock && (
-              <p className="text-sm text-accent-primary mt-4">
-                ✓ In Stock - Free Shipping
-              </p>
-            )}
+            <p className="text-sm text-primary mt-4">✓ Ready to order</p>
           </motion.div>
         </div>
       </div>

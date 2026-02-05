@@ -83,3 +83,11 @@ func (s *Service) Login(ctx context.Context, in LoginInput) (string, *repo.User,
 }
 
 func (s *Service) JWT() *JWT { return s.jwt }
+
+func (s *Service) GetUserByEmail(ctx context.Context, email string) (*repo.User, error) {
+	email = strings.TrimSpace(strings.ToLower(email))
+	if email == "" {
+		return nil, errors.New("invalid email")
+	}
+	return s.repo.GetUserByEmail(ctx, email)
+}

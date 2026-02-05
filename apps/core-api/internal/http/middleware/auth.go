@@ -51,3 +51,13 @@ func UserIDFromContext(ctx context.Context) (string, bool) {
 	v, ok := ctx.Value(contextKeyUserID).(string)
 	return v, ok && v != ""
 }
+
+func EmailFromContext(ctx context.Context) (string, bool) {
+	v, ok := ctx.Value(contextKeyEmail).(string)
+	return v, ok && v != ""
+}
+
+func RoleFromContext(ctx context.Context) (string, bool) {
+	v, ok := ctx.Value(contextKeyRole).(string)
+	return v, ok && v != ""
+}

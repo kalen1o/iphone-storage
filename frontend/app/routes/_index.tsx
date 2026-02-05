@@ -1,5 +1,4 @@
 import { VideoScrollPlayer, useScrollProgress } from '~/components/animation/VideoScrollPlayer';
-import { Navigation } from '~/components/layout/Navigation';
 import {
   HeroContent,
   EngineeringContent,
@@ -10,6 +9,7 @@ import {
 import { STORY_BEATS } from '~/constants/images';
 import { motion } from 'framer-motion';
 import { Link } from '@remix-run/react';
+import { Button } from '~/components/ui/button';
 
 export function meta() {
   return [
@@ -40,10 +40,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background-primary overflow-x-hidden">
-      {/* Navigation */}
-      <Navigation />
-
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Sticky Canvas Container */}
       <div className="relative h-[400vh]">
         {/* Fixed Canvas */}
@@ -91,24 +88,18 @@ export default function Home() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
-        className="relative z-20 bg-gradient-to-b from-background-primary to-background-secondary py-20"
+        className="relative z-20 bg-gradient-to-b from-background to-secondary py-20"
       >
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
             Ready to experience the future?
           </h2>
-          <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-foreground/80 mb-8 max-w-2xl mx-auto">
             Pre-order now and be among the first to receive your iPhone 17 Pro Max.
           </p>
-          <Link
-            to="/product/iphone-17-pro-max"
-            className="inline-flex items-center gap-2 bg-accent-primary hover:bg-accent-secondary text-white px-8 py-4 rounded-lg font-semibold transition-all hover:scale-105 active:scale-95 text-lg"
-          >
-            Buy Now
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4-4m4 4H3m14 0v14m-4 0H3m14 0v-8" />
-            </svg>
-          </Link>
+          <Button asChild size="lg" className="text-lg px-8 py-6 rounded-lg">
+            <Link to="/products">Shop Products</Link>
+          </Button>
         </div>
       </motion.section>
     </div>

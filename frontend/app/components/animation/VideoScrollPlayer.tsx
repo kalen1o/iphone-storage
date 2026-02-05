@@ -17,11 +17,7 @@ export function VideoScrollPlayer({ progress }: VideoScrollPlayerProps) {
     if (!video || hasInitialized.current) return;
     hasInitialized.current = true;
 
-    console.log('Video ref attached, setting up listeners');
-    console.log('Video src:', video.src);
-
     const handleReady = () => {
-      console.log('Video is ready, duration:', video.duration, 'readyState:', video.readyState);
       setIsReady(true);
     };
 
@@ -34,16 +30,7 @@ export function VideoScrollPlayer({ progress }: VideoScrollPlayerProps) {
       }
     };
 
-    const handleLoadStart = () => {
-      console.log('Video load started');
-    };
-
-    const handleCanPlay = () => {
-      console.log('Video can play, readyState:', video.readyState);
-    };
-
     // Listen for multiple events to ensure we catch when video is ready
-    video.addEventListener('loadstart', handleLoadStart);
     video.addEventListener('loadedmetadata', handleReady);
     video.addEventListener('loadeddata', handleReady);
     video.addEventListener('canplay', handleReady);
@@ -52,7 +39,6 @@ export function VideoScrollPlayer({ progress }: VideoScrollPlayerProps) {
 
     // Explicitly trigger video loading
     setTimeout(() => {
-      console.log('Calling video.load()');
       video.load();
     }, 100);
   };
@@ -85,10 +71,10 @@ export function VideoScrollPlayer({ progress }: VideoScrollPlayerProps) {
     <>
       {/* Loading overlay */}
       {!isReady && (
-        <div className="fixed inset-0 flex items-center justify-center bg-background-primary z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-background z-50">
           <div className="text-center">
-            <div className="w-16 h-16 border-2 border-accent-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-white/60 text-sm">Loading experience...</p>
+            <div className="w-16 h-16 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground text-sm">Loading experience...</p>
           </div>
         </div>
       )}

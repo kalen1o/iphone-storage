@@ -4,19 +4,45 @@
 
 @layer base {
   :root {
-    --color-background-primary: #050505;
-    --color-background-secondary: #0A0A0C;
-    --color-accent-primary: #3A6DFF;
-    --color-accent-secondary: #6FE3FF;
+    /* Shadcn tokens (dark by default, matching the existing look) */
+    --background: 0 0% 2%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 9% 4%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 9% 4%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 224 100% 61%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 240 6% 10%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 6% 10%;
+    --muted-foreground: 240 5% 70%;
+
+    --accent: 192 100% 72%;
+    --accent-foreground: 240 9% 4%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 100%;
+    --input: 0 0% 100%;
+    --ring: 192 100% 72%;
+
+    --radius: 0.75rem;
   }
 
   body {
-    @apply bg-background-primary text-gray-900;
+    @apply bg-background text-foreground;
     scroll-behavior: smooth;
   }
 
   * {
-    @apply border-white/10;
+    @apply border-border/10;
   }
 }
 

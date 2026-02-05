@@ -8,7 +8,6 @@ COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies
 RUN corepack enable && \
-    npm install -g pnpm && \
     pnpm install --frozen-lockfile
 
 # Copy source
@@ -25,7 +24,6 @@ WORKDIR /app
 # Install dependencies for runtime
 COPY package.json pnpm-lock.yaml ./
 RUN corepack enable && \
-    npm install -g pnpm && \
     pnpm install --prod --frozen-lockfile
 
 # Copy build
