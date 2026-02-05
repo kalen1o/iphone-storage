@@ -1,0 +1,15 @@
+.git
+.gitignore
+.DS_Store
+
+**/node_modules
+**/.cache
+**/dist
+**/build
+**/.next
+**/.turbo
+**/.pnpm-store
+
+frontend/.env*
+**/*.log
+

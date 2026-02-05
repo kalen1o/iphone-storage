@@ -4,7 +4,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies
 RUN corepack enable && \
@@ -23,7 +23,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Install dependencies for runtime
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 RUN corepack enable && \
     npm install -g pnpm && \
     pnpm install --prod --frozen-lockfile
