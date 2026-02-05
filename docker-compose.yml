@@ -13,6 +13,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./shared/db/migrations:/docker-entrypoint-initdb.d
+      - ./shared/db/seeds/001_sample_data.sql:/docker-entrypoint-initdb.d/002_seed_data.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin}"]
       interval: 10s
@@ -148,6 +149,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+    ports:
+      - "8084:8080"
     networks:
       - backend
     restart: unless-stopped
@@ -176,6 +179,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+    ports:
+      - "8082:8080"
     networks:
       - backend
     restart: unless-stopped
@@ -206,6 +211,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    ports:
+      - "8083:8080"
     networks:
       - backend
     restart: unless-stopped

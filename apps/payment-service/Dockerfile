@@ -3,7 +3,7 @@ FROM golang:1.21-alpine AS builder
 WORKDIR /src
 RUN apk add --no-cache git ca-certificates
 
-COPY go.mod ./
+COPY go.mod go.sum ./
 COPY shared ./shared
 COPY apps/payment-service ./apps/payment-service
 
@@ -16,4 +16,3 @@ RUN apk --no-cache add ca-certificates tzdata
 COPY --from=builder /out/payment-service /app/payment-service
 
 CMD ["/app/payment-service"]
-

@@ -1,4 +1,4 @@
-.PHONY: help build up down restart logs clean test db-migrate kafka-topics
+.PHONY: help build up down restart logs clean test db-migrate kafka-topics swagger
 
 help:
 	@echo "Available targets:"
@@ -11,6 +11,7 @@ help:
 	@echo "  make test         - Run Go tests"
 	@echo "  make db-migrate   - Run database migrations (init SQL)"
 	@echo "  make kafka-topics - Create Kafka topics"
+	@echo "  make swagger      - Generate Swagger docs"
 
 build:
 	docker compose build
@@ -44,3 +45,9 @@ kafka-topics:
 
 test:
 	GOCACHE=/tmp/go-cache GOMODCACHE=/tmp/go-mod go test ./... -v
+
+swagger:
+	go run github.com/swaggo/swag/cmd/swag@v1.16.4 init --dir apps/core-api --generalInfo cmd/api/main.go -o apps/core-api/docs
+	go run github.com/swaggo/swag/cmd/swag@v1.16.4 init --dir apps/order-service --generalInfo cmd/order/main.go -o apps/order-service/docs
+	go run github.com/swaggo/swag/cmd/swag@v1.16.4 init --dir apps/payment-service --generalInfo cmd/payment/main.go -o apps/payment-service/docs
+	go run github.com/swaggo/swag/cmd/swag@v1.16.4 init --dir apps/inventory-service --generalInfo cmd/inventory/main.go -o apps/inventory-service/docs

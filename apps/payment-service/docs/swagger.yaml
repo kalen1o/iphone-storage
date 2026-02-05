@@ -1,0 +1,35 @@
+basePath: /
+info:
+  contact: {}
+  description: Payment worker service.
+  title: Payment Service
+  version: 0.1.0
+paths:
+  /health:
+    get:
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: Health check
+      tags:
+      - health
+  /version:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Version info
+      tags:
+      - health
+schemes:
+- http
+swagger: "2.0"
