@@ -14,7 +14,7 @@ This is a Remix-based version of the iPhone 17 Pro Max landing page with scroll-
 ## Project Structure
 
 ```
-frontend-remix/
+frontend/
 ├── app/
 │   ├── components/
 │   │   ├── animation/
@@ -62,7 +62,7 @@ frontend-remix/
 
 ```bash
 # Navigate to the project directory
-cd frontend-remix
+cd frontend
 
 # Install dependencies
 pnpm install

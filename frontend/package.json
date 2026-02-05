@@ -1,5 +1,5 @@
 {
-    "name": "frontend-remix",
+    "name": "frontend",
     "private": true,
     "sideEffects": false,
     "type": "module",

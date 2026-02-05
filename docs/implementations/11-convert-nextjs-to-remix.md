@@ -20,10 +20,10 @@ The conversion involves:
 cd /Users/kalen_1o/learning/online-storage
 
 # Create new Remix project
-npx create-remix@latest --template remix-run/remix/templates/typescript frontend-remix
+npx create-remix@latest --template remix-run/remix/templates/typescript frontend
 
 # Navigate to new project
-cd frontend-remix
+cd frontend
 ```
 
 ### 1.2 Install Additional Dependencies
@@ -55,7 +55,7 @@ cp ../apps/fe/tailwind.config.ts ./
 
 ### 2.2 Update Tailwind Config for Remix
 
-Update `frontend-remix/tailwind.config.ts`:
+Update `frontend/tailwind.config.ts`:
 
 ```typescript
 import type { Config } from "tailwindcss";
@@ -115,7 +115,7 @@ cp ../apps/fe/postcss.config.mjs ./
 
 ### 2.4 Update PostCSS Config for Remix
 
-Update `frontend-remix/postcss.config.mjs`:
+Update `frontend/postcss.config.mjs`:
 
 ```javascript
 /** @type {import('postcss-load-config').Config} */
@@ -152,7 +152,7 @@ mkdir -p public/videos
 
 ### 4.2 Create Constants
 
-Create `frontend-remix/app/constants/content.ts`:
+Create `frontend/app/constants/content.ts`:
 
 ```typescript
 export const STORY_BEAT_CONTENT = {
@@ -203,7 +203,7 @@ export const NAVIGATION_LINKS = [
 ] as const;
 ```
 
-Create `frontend-remix/app/constants/images.ts`:
+Create `frontend/app/constants/images.ts`:
 
 ```typescript
 export const STORY_BEATS = {
@@ -217,7 +217,7 @@ export const STORY_BEATS = {
 
 ### 4.3 Create Video Scroll Player
 
-Create `frontend-remix/app/components/animation/VideoScrollPlayer.tsx`:
+Create `frontend/app/components/animation/VideoScrollPlayer.tsx`:
 
 ```typescript
 import { useEffect, useRef, useState } from 'react';
@@ -336,7 +336,7 @@ export function useScrollProgress() {
 
 ### 4.4 Create Story Beat Components
 
-Create `frontend-remix/app/components/animation/StoryBeat.tsx`:
+Create `frontend/app/components/animation/StoryBeat.tsx`:
 
 ```typescript
 import { motion } from 'framer-motion';
@@ -364,7 +364,7 @@ export function StoryBeat({ children, opacity, zIndex }: StoryBeatProps) {
 
 ### 4.5 Create Navigation Component
 
-Create `frontend-remix/app/components/layout/Navigation.tsx`:
+Create `frontend/app/components/layout/Navigation.tsx`:
 
 ```typescript
 import { Link } from '@remix-run/react';
@@ -421,7 +421,7 @@ export function Navigation() {
 
 ### 5.1 Create Product Store
 
-Create `frontend-remix/app/lib/stores/cartStore.ts`:
+Create `frontend/app/lib/stores/cartStore.ts`:
 
 ```typescript
 import create from 'zustand/vanilla';
@@ -512,7 +512,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
 ### 5.2 Create Product Data
 
-Create `frontend-remix/app/lib/products.ts`:
+Create `frontend/app/lib/products.ts`:
 
 ```typescript
 export interface Product {
@@ -609,7 +609,7 @@ export const STORAGE_PLANS: Product[] = [
 
 ### 6.1 Create Root Route
 
-Create `frontend-remix/app/routes/_index.tsx`:
+Create `frontend/app/routes/_index.tsx`:
 
 ```typescript
 import { useScrollProgress } from '~/components/animation/VideoScrollPlayer';
@@ -733,7 +733,7 @@ function getBeatOpacity(beatStart: number, beatEnd: number): number {
 
 ### 6.2 Create Product Detail Route
 
-Create `frontend-remix/app/routes/product.$id.tsx`:
+Create `frontend/app/routes/product.$id.tsx`:
 
 ```typescript
 import { Link, useLoaderData, useNavigate } from '@remix-run/react';
@@ -967,7 +967,7 @@ export default function ProductDetail() {
 
 ### 6.3 Create Cart Route
 
-Create `frontend-remix/app/routes/cart.tsx`:
+Create `frontend/app/routes/cart.tsx`:
 
 ```typescript
 import { useCartStore } from '~/lib/stores/cartStore';
@@ -1201,7 +1201,7 @@ export default function Cart() {
 
 ## Step 7: Create Cart Icon Component
 
-Create `frontend-remix/app/components/layout/CartIcon.tsx`:
+Create `frontend/app/components/layout/CartIcon.tsx`:
 
 ```typescript
 import { useCartStore } from '~/lib/stores/cartStore';
@@ -1238,7 +1238,7 @@ export function CartIcon() {
 
 ## Step 8: Update Root Layout
 
-Update `frontend-remix/app/root.tsx`:
+Update `frontend/app/root.tsx`:
 
 ```typescript
 import {
@@ -1285,7 +1285,7 @@ export default function App() {
 
 ## Step 9: Add Content Components
 
-Create `frontend-remix/app/components/animation/content.tsx`:
+Create `frontend/app/components/animation/content.tsx`:
 
 ```typescript
 import { StoryBeat } from './StoryBeat';
@@ -1360,7 +1360,7 @@ export function EngineeringContent({ opacity, zIndex }: { opacity: number; zInde
 
 ## Step 10: Update Navigation Component
 
-Update `frontend-remix/app/components/layout/Navigation.tsx` to include cart icon:
+Update `frontend/app/components/layout/Navigation.tsx` to include cart icon:
 
 ```typescript
 import { Link } from '@remix-run/react';
@@ -1419,7 +1419,7 @@ export function Navigation() {
 
 ## Step 11: Create Global Styles
 
-Create `frontend-remix/app/styles/global.css`:
+Create `frontend/app/styles/global.css`:
 
 ```css
 @tailwind base;
@@ -1477,7 +1477,7 @@ Create `frontend-remix/app/styles/global.css`:
 
 ```bash
 # Navigate to Remix project
-cd frontend-remix
+cd frontend
 
 # Install dependencies
 pnpm install
@@ -1494,7 +1494,7 @@ pnpm start
 
 ## Step 13: Update Docker Configuration
 
-Update `frontend-remix/Dockerfile`:
+Update `frontend/Dockerfile`:
 
 ```dockerfile
 # Build stage
