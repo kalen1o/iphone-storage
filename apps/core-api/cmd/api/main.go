@@ -30,6 +30,9 @@ import (
 	authcontroller "github.com/kalen1o/iphone-storage/apps/core-api/internal/auth/controller"
 	authrepo "github.com/kalen1o/iphone-storage/apps/core-api/internal/auth/repo"
 	authservice "github.com/kalen1o/iphone-storage/apps/core-api/internal/auth/service"
+	inventorycontroller "github.com/kalen1o/iphone-storage/apps/core-api/internal/inventory/controller"
+	inventoryrepo "github.com/kalen1o/iphone-storage/apps/core-api/internal/inventory/repo"
+	inventoryservice "github.com/kalen1o/iphone-storage/apps/core-api/internal/inventory/service"
 	ordercontroller "github.com/kalen1o/iphone-storage/apps/core-api/internal/orders/controller"
 	orderrepo "github.com/kalen1o/iphone-storage/apps/core-api/internal/orders/repo"
 	orderservice "github.com/kalen1o/iphone-storage/apps/core-api/internal/orders/service"
@@ -66,6 +69,10 @@ func main() {
 	productsSvc := productservice.New(productsRepo)
 	productsCtrl := productcontroller.New(productsSvc)
 
+	invRepo := inventoryrepo.NewPostgres(pool)
+	invSvc := inventoryservice.New(invRepo)
+	invCtrl := inventorycontroller.New(invSvc)
+
 	producer := kafka.NewProducer(cfg.Kafka.Brokers, cfg.Kafka.ClientID)
 	defer func() { _ = producer.Close() }()
 
@@ -96,6 +103,8 @@ func main() {
 	api.HandleFunc("/auth/login", authCtrl.Login).Methods(http.MethodPost)
 	api.HandleFunc("/products", productsCtrl.GetProducts).Methods(http.MethodGet)
 	api.HandleFunc("/products/{id}", productsCtrl.GetProductByID).Methods(http.MethodGet)
+	api.HandleFunc("/inventory", invCtrl.GetInventory).Methods(http.MethodGet)
+	api.HandleFunc("/inventory/{id}", invCtrl.GetInventoryByProductID).Methods(http.MethodGet)
 
 	protected := api.PathPrefix("").Subrouter()
 	protected.Use(middleware.NewAuthMiddleware(jwt).Authenticate)

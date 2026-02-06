@@ -21,13 +21,21 @@ type Product = {
   };
 };
 
+type InventoryResponse = {
+  product_id: string;
+  in_stock: boolean;
+};
+
 export async function loader({ params }: LoaderFunctionArgs) {
-  if (!params.id) return { product: null as Product | null };
+  if (!params.id) return { product: null as Product | null, inStock: false };
   try {
-    const product = await apiFetch<Product>(`/products/${params.id}`);
-    return { product };
+    const [product, inv] = await Promise.all([
+      apiFetch<Product>(`/products/${params.id}`),
+      apiFetch<InventoryResponse>(`/inventory/${params.id}`),
+    ]);
+    return { product, inStock: inv.in_stock };
   } catch {
-    return { product: null as Product | null };
+    return { product: null as Product | null, inStock: false };
   }
 }
 
@@ -39,7 +47,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export default function ProductDetail() {
-  const { product } = useLoaderData<typeof loader>();
+  const { product, inStock } = useLoaderData<typeof loader>();
   const addToCart = useCartStore((state) => state.addToCart);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
@@ -57,9 +65,10 @@ export default function ProductDetail() {
     );
   }
 
+  const canOrder = inStock;
+
   const handleAddToCart = async () => {
     setIsAdding(true);
-    await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API call
     addToCart({
       productId: product.id,
       quantity,
@@ -111,6 +120,18 @@ export default function ProductDetail() {
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
               {product.name}
             </h1>
+
+            <div className="mb-6">
+              {inStock ? (
+                <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+                  In stock
+                </span>
+              ) : (
+                <span className="inline-flex items-center rounded-full border border-destructive/30 bg-destructive/15 px-3 py-1 text-sm font-medium text-destructive-foreground">
+                  Out of stock
+                </span>
+              )}
+            </div>
 
             <p className="text-lg text-foreground/80 mb-8">
               {product.description}
@@ -173,7 +194,7 @@ export default function ProductDetail() {
                   variant="secondary"
                   size="icon"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={quantity <= 1}
+                  disabled={quantity <= 1 || !canOrder}
                   className="w-12 h-12 rounded-lg"
                 >
                   −
@@ -186,6 +207,7 @@ export default function ProductDetail() {
                   variant="secondary"
                   size="icon"
                   onClick={() => setQuantity(quantity + 1)}
+                  disabled={!canOrder}
                   className="w-12 h-12 rounded-lg"
                 >
                   +
@@ -198,7 +220,7 @@ export default function ProductDetail() {
               <Button
                 type="button"
                 onClick={handleAddToCart}
-                disabled={isAdding}
+                disabled={isAdding || !canOrder}
                 className="w-full py-6 text-lg rounded-lg"
               >
                 {isAdding ? (
@@ -213,7 +235,13 @@ export default function ProductDetail() {
             </motion.div>
 
             {/* Stock Status */}
-            <p className="text-sm text-primary mt-4">✓ Ready to order</p>
+            {inStock ? (
+              <p className="text-sm text-primary mt-4">✓ Ready to order</p>
+            ) : (
+              <p className="text-sm text-destructive-foreground mt-4">
+                This item is currently out of stock.
+              </p>
+            )}
           </motion.div>
         </div>
       </div>

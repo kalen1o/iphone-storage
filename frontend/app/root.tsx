@@ -5,6 +5,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
 } from '@remix-run/react';
 import { json } from '@remix-run/node';
 import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
@@ -56,6 +57,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function App() {
   const { user } = useLoaderData<typeof loader>();
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+
   return (
     <html lang="en">
       <head>
@@ -64,7 +68,7 @@ export default function App() {
       </head>
       <body>
         <Navigation user={user} />
-        <main>
+        <main className={isHome ? undefined : 'pt-32'}>
           <Outlet />
         </main>
         <ScrollRestoration />
