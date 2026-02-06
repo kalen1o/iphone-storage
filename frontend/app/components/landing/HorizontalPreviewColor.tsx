@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { PreviewSection } from '~/components/landing/PreviewSection';
 import { ColorPickerSection } from '~/components/landing/ColorPickerSection';
+import { FeaturesSection } from '~/components/landing/FeaturesSection';
 import { cn } from '~/lib/utils';
 
 function prefersReducedMotion(): boolean {
@@ -13,6 +14,7 @@ export function HorizontalPreviewColor() {
   const pinRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [enableHorizontal, setEnableHorizontal] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -42,8 +44,15 @@ export function HorizontalPreviewColor() {
 
       ctx = gsap.context(() => {
         const getDistance = () => Math.max(0, trackEl.scrollWidth - pinEl.clientWidth);
+        const getActiveIndex = (progress: number) => {
+          const panelCount = Math.max(1, trackEl.children?.length ?? 0);
+          if (panelCount <= 1) return 0;
+          const clamped = Math.min(1, Math.max(0, progress));
+          return Math.round(clamped * (panelCount - 1));
+        };
 
         gsap.set(trackEl, { x: 0 });
+        let lastIndex = -1;
         gsap.to(trackEl, {
           x: () => -getDistance(),
           ease: 'none',
@@ -55,6 +64,12 @@ export function HorizontalPreviewColor() {
             pin: true,
             anticipatePin: 1,
             invalidateOnRefresh: true,
+            onUpdate: (self: any) => {
+              const nextIndex = getActiveIndex(self?.progress ?? 0);
+              if (nextIndex === lastIndex) return;
+              lastIndex = nextIndex;
+              setActiveIndex(nextIndex);
+            },
           },
         });
 
@@ -70,6 +85,14 @@ export function HorizontalPreviewColor() {
     };
   }, [enableHorizontal]);
 
+  const panelClass = (index: number) =>
+    cn(
+      enableHorizontal ? 'w-screen flex-none' : 'w-full',
+      enableHorizontal &&
+        (activeIndex === index ? 'scale-[1.02]' : 'scale-[0.96]'),
+      'transform-gpu transition-transform duration-300 ease-out motion-reduce:transform-none motion-reduce:transition-none',
+    );
+
   return (
     <section className="relative w-full">
       <div
@@ -83,10 +106,16 @@ export function HorizontalPreviewColor() {
             enableHorizontal ? 'h-full w-[200vw]' : 'w-full flex-col',
           )}
         >
-          <PreviewSection className={enableHorizontal ? 'w-screen flex-none' : undefined} />
-          <ColorPickerSection className={enableHorizontal ? 'w-screen flex-none' : undefined} />
+          <div className={panelClass(0)}>
+            <PreviewSection />
+          </div>
+          <div className={panelClass(1)}>
+            <ColorPickerSection />
+          </div>
         </div>
       </div>
+
+      <FeaturesSection />
     </section>
   );
 }
