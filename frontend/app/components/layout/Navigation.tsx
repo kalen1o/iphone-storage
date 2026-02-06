@@ -1,6 +1,6 @@
 import { Form, Link, useLocation } from "@remix-run/react";
 import { motion } from "framer-motion";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { NAVIGATION_LINKS } from "~/constants/content";
 import type { AuthUser } from "~/types/auth";
@@ -25,17 +25,37 @@ function getInitials(user: AuthUser) {
 
 export function Navigation({ user }: { user: AuthUser | null }) {
   const location = useLocation();
+  const [isVisible, setIsVisible] = useState(false);
   const redirectTo = useMemo(
     () => `${location.pathname}${location.search}`,
     [location.pathname, location.search]
   );
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const thresholdPx = 12;
+    const onScroll = () => {
+      setIsVisible(window.scrollY > thresholdPx);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <motion.nav
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="fixed top-0 left-0 right-0 z-40 px-6 py-4 bg-background/80 backdrop-blur-lg border-b border-border/10"
+      initial={false}
+      animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: -12 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className={[
+        "fixed top-3 left-1/2 z-40 w-[min(calc(100%-2rem),80rem)] -translate-x-1/2",
+        "rounded-2xl border border-border/10 bg-background/80 px-6 py-4 shadow-sm backdrop-blur-lg",
+        isVisible ? "pointer-events-auto" : "pointer-events-none",
+      ].join(" ")}
+      aria-hidden={!isVisible}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link to="/" className="text-foreground font-bold text-xl tracking-tight">

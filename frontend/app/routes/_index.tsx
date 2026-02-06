@@ -1,12 +1,6 @@
-import { VideoScrollPlayer, useScrollProgress } from '~/components/animation/VideoScrollPlayer';
-import {
-  HeroContent,
-  EngineeringContent,
-  PerformanceContent,
-  CameraContent,
-  ReassemblyContent,
-} from '~/components/animation/content';
-import { STORY_BEATS } from '~/constants/images';
+import { WelcomeHero } from '~/components/landing/WelcomeHero';
+import { PreviewSection } from '~/components/landing/PreviewSection';
+import { ColorPickerSection } from '~/components/landing/ColorPickerSection';
 import { motion } from 'framer-motion';
 import { Link } from '@remix-run/react';
 import { Button } from '~/components/ui/button';
@@ -20,67 +14,12 @@ export function meta() {
 }
 
 export default function Home() {
-  const progress = useScrollProgress();
-
-  const getBeatOpacity = (beatStart: number, beatEnd: number): number => {
-    const fadeRange = 0.05;
-
-    if (progress < beatStart - fadeRange) return 0;
-    if (progress > beatEnd + fadeRange) return 0;
-
-    if (progress < beatStart) {
-      return Math.max(0, (progress - (beatStart - fadeRange)) / fadeRange);
-    }
-
-    if (progress > beatEnd) {
-      return Math.max(0, 1 - (progress - beatEnd) / fadeRange);
-    }
-
-    return 1;
-  };
-
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
-      {/* Sticky Canvas Container */}
-      <div className="relative h-[400vh]">
-        {/* Fixed Canvas */}
-        <div className="sticky top-0 h-screen w-full overflow-hidden">
-          <VideoScrollPlayer progress={progress} />
+    <div className="min-h-screen bg-background">
+      <WelcomeHero />
 
-          {/* Story Beat Overlays */}
-          <div className="absolute inset-0 pointer-events-none">
-            {/* Hero Section (0-15%) */}
-            <HeroContent
-              opacity={getBeatOpacity(STORY_BEATS.HERO.start, STORY_BEATS.HERO.end)}
-              zIndex={10}
-            />
-
-            {/* Engineering Section (15-40%) */}
-            <EngineeringContent
-              opacity={getBeatOpacity(STORY_BEATS.ENGINEERING.start, STORY_BEATS.ENGINEERING.end)}
-              zIndex={20}
-            />
-
-            {/* Performance Section (40-65%) */}
-            <PerformanceContent
-              opacity={getBeatOpacity(STORY_BEATS.PERFORMANCE.start, STORY_BEATS.PERFORMANCE.end)}
-              zIndex={30}
-            />
-
-            {/* Camera Section (65-85%) */}
-            <CameraContent
-              opacity={getBeatOpacity(STORY_BEATS.CAMERA.start, STORY_BEATS.CAMERA.end)}
-              zIndex={40}
-            />
-
-            {/* Reassembly Section (85-100%) */}
-            <ReassemblyContent
-              opacity={getBeatOpacity(STORY_BEATS.REASSEMBLY.start, STORY_BEATS.REASSEMBLY.end)}
-              zIndex={50}
-            />
-          </div>
-        </div>
-      </div>
+      <PreviewSection />
+      <ColorPickerSection />
 
       {/* Product CTA Section */}
       <motion.section

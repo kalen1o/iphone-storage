@@ -64,7 +64,7 @@ export default function App() {
       </head>
       <body>
         <Navigation user={user} />
-        <main className="pt-20">
+        <main>
           <Outlet />
         </main>
         <ScrollRestoration />

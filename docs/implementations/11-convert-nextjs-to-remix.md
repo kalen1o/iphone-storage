@@ -638,7 +638,7 @@ export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="min-h-screen bg-background-primary overflow-x-hidden">
+    <div className="min-h-screen bg-background-primary">
       {/* Navigation */}
       <Navigation />
 
