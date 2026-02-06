@@ -7,7 +7,7 @@ import (
 
 type Envelope[T any] struct {
 	EventID     string    `json:"event_id"`
-	Type        string    `json:"type"`
+	Type        Type      `json:"type"`
 	OccurredAt  time.Time `json:"occurred_at"`
 	TraceID     string    `json:"trace_id,omitempty"`
 	AggregateID string    `json:"aggregate_id,omitempty"`
@@ -21,4 +21,3 @@ func Marshal[T any](e Envelope[T]) ([]byte, error) {
 func Unmarshal[T any](b []byte, out *Envelope[T]) error {
 	return json.Unmarshal(b, out)
 }
-

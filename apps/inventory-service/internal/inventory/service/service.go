@@ -339,7 +339,7 @@ func (s *Service) markEventProcessed(ctx context.Context, eventID string) bool {
 func (s *Service) publishInventoryReserved(ctx context.Context, orderID string) {
 	payload := events.Envelope[events.InventoryReservedData]{
 		EventID:     uuid.NewString(),
-		Type:        "inventory.reserved",
+		Type:        events.TypeInventoryReserved,
 		OccurredAt:  time.Now().UTC(),
 		AggregateID: orderID,
 		Data:        events.InventoryReservedData{OrderID: orderID},
@@ -354,7 +354,7 @@ func (s *Service) publishInventoryReserved(ctx context.Context, orderID string) 
 func (s *Service) publishInventoryOutOfStock(ctx context.Context, orderID, reason string) {
 	payload := events.Envelope[events.InventoryOutOfStockData]{
 		EventID:     uuid.NewString(),
-		Type:        "inventory.out_of_stock",
+		Type:        events.TypeInventoryOutOfStock,
 		OccurredAt:  time.Now().UTC(),
 		AggregateID: orderID,
 		Data:        events.InventoryOutOfStockData{OrderID: orderID, Reason: reason},
@@ -369,7 +369,7 @@ func (s *Service) publishInventoryOutOfStock(ctx context.Context, orderID, reaso
 func (s *Service) publishInventoryReleased(ctx context.Context, orderID, reason string) {
 	payload := events.Envelope[events.InventoryReleasedData]{
 		EventID:     uuid.NewString(),
-		Type:        "inventory.released",
+		Type:        events.TypeInventoryReleased,
 		OccurredAt:  time.Now().UTC(),
 		AggregateID: orderID,
 		Data:        events.InventoryReleasedData{OrderID: orderID, Reason: reason},
@@ -384,7 +384,7 @@ func (s *Service) publishInventoryReleased(ctx context.Context, orderID, reason 
 func (s *Service) publishOrderCancelled(ctx context.Context, orderID, reason string) {
 	payload := events.Envelope[events.OrdersCancelledData]{
 		EventID:     uuid.NewString(),
-		Type:        "orders.cancelled",
+		Type:        events.TypeOrdersCancelled,
 		OccurredAt:  time.Now().UTC(),
 		AggregateID: orderID,
 		Data:        events.OrdersCancelledData{OrderID: orderID, Reason: reason},

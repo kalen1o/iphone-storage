@@ -37,7 +37,7 @@ func (s *Service) Create(ctx context.Context, userID uuid.UUID, input repo.Creat
 
 		payload := events.Envelope[events.OrdersCreatedData]{
 			EventID:     uuid.NewString(),
-			Type:        "orders.created",
+			Type:        events.TypeOrdersCreated,
 			OccurredAt:  time.Now().UTC(),
 			AggregateID: order.ID.String(),
 			Data: events.OrdersCreatedData{

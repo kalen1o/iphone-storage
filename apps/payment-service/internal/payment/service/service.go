@@ -151,7 +151,7 @@ func (s *Service) markEventProcessed(ctx context.Context, eventID string) bool {
 func (s *Service) publishPaymentSucceeded(ctx context.Context, orderID, paymentID string) {
 	payload := events.Envelope[events.PaymentsSucceededData]{
 		EventID:     uuid.NewString(),
-		Type:        "payments.succeeded",
+		Type:        events.TypePaymentsSucceeded,
 		OccurredAt:  time.Now().UTC(),
 		AggregateID: orderID,
 		Data:        events.PaymentsSucceededData{OrderID: orderID, PaymentID: paymentID},
@@ -166,7 +166,7 @@ func (s *Service) publishPaymentSucceeded(ctx context.Context, orderID, paymentI
 func (s *Service) publishPaymentFailed(ctx context.Context, orderID, paymentID, reason string) {
 	payload := events.Envelope[events.PaymentsFailedData]{
 		EventID:     uuid.NewString(),
-		Type:        "payments.failed",
+		Type:        events.TypePaymentsFailed,
 		OccurredAt:  time.Now().UTC(),
 		AggregateID: orderID,
 		Data:        events.PaymentsFailedData{OrderID: orderID, PaymentID: paymentID, Reason: reason},
@@ -181,7 +181,7 @@ func (s *Service) publishPaymentFailed(ctx context.Context, orderID, paymentID, 
 func (s *Service) publishOrdersPaid(ctx context.Context, orderID string) {
 	payload := events.Envelope[events.OrdersPaidData]{
 		EventID:     uuid.NewString(),
-		Type:        "orders.paid",
+		Type:        events.TypeOrdersPaid,
 		OccurredAt:  time.Now().UTC(),
 		AggregateID: orderID,
 		Data:        events.OrdersPaidData{OrderID: orderID},
@@ -196,7 +196,7 @@ func (s *Service) publishOrdersPaid(ctx context.Context, orderID string) {
 func (s *Service) publishOrdersCancelled(ctx context.Context, orderID, reason string) {
 	payload := events.Envelope[events.OrdersCancelledData]{
 		EventID:     uuid.NewString(),
-		Type:        "orders.cancelled",
+		Type:        events.TypeOrdersCancelled,
 		OccurredAt:  time.Now().UTC(),
 		AggregateID: orderID,
 		Data:        events.OrdersCancelledData{OrderID: orderID, Reason: reason},
@@ -207,4 +207,3 @@ func (s *Service) publishOrdersCancelled(ctx context.Context, orderID, reason st
 	}
 	_ = s.producer.Publish(ctx, events.TopicOrdersCancelled, []byte(orderID), b)
 }
-
