@@ -38,9 +38,10 @@ export const STORY_BEAT_CONTENT = {
 } as const;
 
 export const NAVIGATION_LINKS = [
-    'Overview',
-    'Design',
-    'Performance',
-    'Camera',
-    'Tech Specs',
+    { label: 'Overview', to: '/#overview' },
+    { label: 'Design', to: '/#design' },
+    { label: 'Performance', to: '/#performance' },
+    { label: 'Camera', to: '/#camera' },
+    { label: 'Tech Specs', to: '/#tech-specs' },
+    { label: 'Products', to: '/products' },
 ] as const;

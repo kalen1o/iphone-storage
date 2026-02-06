@@ -1,9 +1,10 @@
 import { ManagedInlineVideo } from '~/components/media/ManagedInlineVideo';
+import { cn } from '~/lib/utils';
 
-export function PreviewSection() {
+export function PreviewSection({ className }: { className?: string }) {
   return (
-    <section className="relative mx-auto w-full max-w-6xl px-6 py-24">
-      <div className="grid gap-10 md:grid-cols-2 md:items-center">
+    <section className={cn('relative w-full', className)}>
+      <div className="mx-auto grid w-full max-w-6xl min-h-[100svh] items-center gap-10 px-6 py-16 md:grid-cols-2 md:py-24">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
             A quick preview
@@ -31,4 +32,3 @@ export function PreviewSection() {
     </section>
   );
 }
-

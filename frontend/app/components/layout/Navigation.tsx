@@ -7,6 +7,7 @@ import type { AuthUser } from "~/types/auth";
 import { CartIcon } from "./CartIcon";
 import { Button } from "~/components/ui/button";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
+import { cn } from "~/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,11 +51,11 @@ export function Navigation({ user }: { user: AuthUser | null }) {
       initial={false}
       animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: -12 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className={[
-        "fixed top-3 left-1/2 z-40 w-[min(calc(100%-2rem),80rem)] -translate-x-1/2",
+      className={cn(
+        "fixed top-3 left-1/2 z-40 w-[min(calc(100%_-_2rem),80rem)] -translate-x-1/2",
         "rounded-2xl border border-border/10 bg-background/80 px-6 py-4 shadow-sm backdrop-blur-lg",
         isVisible ? "pointer-events-auto" : "pointer-events-none",
-      ].join(" ")}
+      )}
       aria-hidden={!isVisible}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -65,16 +66,16 @@ export function Navigation({ user }: { user: AuthUser | null }) {
         <ul className="hidden md:flex items-center gap-8">
           {NAVIGATION_LINKS.map((link, index) => (
             <motion.li
-              key={link}
+              key={link.to}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1, duration: 0.4, ease: "easeOut" }}
             >
               <Link
-                to={`/#${link.toLowerCase().replace(/\s+/g, "-")}`}
+                to={link.to}
                 className="text-foreground/70 hover:text-foreground transition-colors text-sm font-medium"
               >
-                {link}
+                {link.label}
               </Link>
             </motion.li>
           ))}

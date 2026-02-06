@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { cn } from '~/lib/utils';
 
 type ColorOption = {
   id: string;
@@ -12,7 +13,7 @@ const COLOR_OPTIONS: ColorOption[] = [
   { id: 'dark', label: 'Midnight', imageSrc: '/images/dark.png' },
 ];
 
-export function ColorPickerSection() {
+export function ColorPickerSection({ className }: { className?: string }) {
   const [activeId, setActiveId] = useState(COLOR_OPTIONS[0]?.id ?? 'orange');
   const [shouldPreload, setShouldPreload] = useState(false);
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -61,8 +62,11 @@ export function ColorPickerSection() {
   };
 
   return (
-    <section ref={sectionRef} className="mx-auto w-full max-w-6xl px-6 py-24">
-      <div className="grid gap-10 md:grid-cols-2 md:items-center">
+    <section
+      ref={sectionRef}
+      className={cn('relative w-full', className)}
+    >
+      <div className="mx-auto grid w-full max-w-6xl min-h-[100svh] items-center gap-10 px-6 py-16 md:grid-cols-2 md:py-24">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
             Choose your finish
@@ -79,21 +83,21 @@ export function ColorPickerSection() {
                   key={option.id}
                   type="button"
                   onClick={() => selectColor(option.id)}
-                  className={[
+                  className={cn(
                     'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition',
                     isActive
                       ? 'border-primary bg-primary text-primary-foreground'
                       : 'border-foreground/15 bg-background hover:bg-secondary/40',
-                  ].join(' ')}
+                  )}
                   aria-pressed={isActive}
                 >
                   <span
-                    className={[
+                    className={cn(
                       'h-3 w-3 rounded-full border border-foreground/10',
-                      option.id === 'orange' ? 'bg-orange-500' : '',
-                      option.id === 'white' ? 'bg-neutral-200' : '',
-                      option.id === 'dark' ? 'bg-neutral-800' : '',
-                    ].join(' ')}
+                      option.id === 'orange' && 'bg-orange-500',
+                      option.id === 'white' && 'bg-neutral-200',
+                      option.id === 'dark' && 'bg-neutral-800',
+                    )}
                     aria-hidden="true"
                   />
                   {option.label}
@@ -114,10 +118,10 @@ export function ColorPickerSection() {
                     src={option.imageSrc}
                     alt={isActive ? option.label : ''}
                     aria-hidden={!isActive}
-                    className={[
+                    className={cn(
                       'absolute inset-0 h-full w-full object-contain transition-opacity duration-500',
                       isActive ? 'opacity-100' : 'opacity-0',
-                    ].join(' ')}
+                    )}
                     draggable={false}
                     loading={isActive ? 'eager' : 'lazy'}
                     decoding="async"
