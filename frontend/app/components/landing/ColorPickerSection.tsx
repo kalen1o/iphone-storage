@@ -64,10 +64,35 @@ export function ColorPickerSection({ className }: { className?: string }) {
   return (
     <section
       ref={sectionRef}
-      className={cn('relative w-full', className)}
+      className={cn('relative w-full overflow-hidden', className)}
     >
-      <div className="mx-auto grid w-full max-w-6xl min-h-[100svh] items-center gap-10 px-6 py-16 md:grid-cols-2 md:py-24">
-        <div>
+      <div className="absolute inset-0 z-0">
+        {shouldPreload &&
+          COLOR_OPTIONS.map((option) => {
+            const isActive = option.id === activeId;
+            return (
+              <picture key={option.id} className="absolute inset-0">
+                <source srcSet={option.imageSrc} type="image/png" />
+                <img
+                  src={option.imageSrc}
+                  alt=""
+                  aria-hidden={!isActive}
+                  className={cn(
+                    'h-full w-full object-cover transition-opacity duration-700',
+                    'scale-[1.05] brightness-75 saturate-125',
+                    isActive ? 'opacity-100' : 'opacity-0',
+                  )}
+                  draggable={false}
+                  loading={isActive ? 'eager' : 'lazy'}
+                  decoding="async"
+                />
+              </picture>
+            );
+          })}
+      </div>
+
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl min-h-[100svh] items-center gap-10 px-6 py-16 md:py-24">
+        <div className="max-w-xl">
           <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
             Choose your finish
           </h2>
@@ -104,30 +129,6 @@ export function ColorPickerSection({ className }: { className?: string }) {
                 </button>
               );
             })}
-          </div>
-        </div>
-
-        <div className="relative overflow-hidden rounded-2xl border border-foreground/10 bg-secondary/30">
-          <div className="relative aspect-square w-full">
-            {shouldPreload &&
-              COLOR_OPTIONS.map((option) => {
-                const isActive = option.id === activeId;
-                return (
-                  <img
-                    key={option.id}
-                    src={option.imageSrc}
-                    alt={isActive ? option.label : ''}
-                    aria-hidden={!isActive}
-                    className={cn(
-                      'absolute inset-0 h-full w-full object-contain transition-opacity duration-500',
-                      isActive ? 'opacity-100' : 'opacity-0',
-                    )}
-                    draggable={false}
-                    loading={isActive ? 'eager' : 'lazy'}
-                    decoding="async"
-                  />
-                );
-              })}
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { cn } from '~/lib/utils';
 
 interface ManagedInlineVideoProps {
   src: string;
@@ -17,10 +18,13 @@ interface ManagedInlineVideoProps {
 
   showReplayButton?: boolean;
   replayLabel?: string;
+  replayButtonMode?: 'always' | 'hover';
 
   unloadOnEnd?: boolean;
   unloadOnLeave?: boolean;
 
+  onLoadedData?: () => void;
+  onError?: () => void;
   onEnded?: () => void;
 }
 
@@ -42,8 +46,11 @@ export function ManagedInlineVideo({
   preload = 'none',
   showReplayButton = false,
   replayLabel = 'Replay',
+  replayButtonMode = 'always',
   unloadOnEnd = false,
   unloadOnLeave = false,
+  onLoadedData,
+  onError,
   onEnded,
 }: ManagedInlineVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -53,6 +60,7 @@ export function ManagedInlineVideo({
   const [playbackBlocked, setPlaybackBlocked] = useState(false);
 
   const reducedMotion = useMemo(() => prefersReducedMotion(), []);
+  const revealReplayOnHover = replayButtonMode === 'hover' && hasEnded;
 
   const loadSrc = useCallback(() => {
     const video = videoRef.current;
@@ -156,7 +164,10 @@ export function ManagedInlineVideo({
   }, [unloadOnLeave, hasLoadedOnce, hasEnded, unloadSrc]);
 
   return (
-    <div ref={containerRef} className="relative h-full w-full">
+    <div
+      ref={containerRef}
+      className={cn('relative h-full w-full', replayButtonMode === 'hover' && 'group')}
+    >
       <video
         ref={videoRef}
         aria-label={ariaLabel}
@@ -166,6 +177,12 @@ export function ManagedInlineVideo({
         playsInline={playsInline}
         preload={preload}
         loop={loop}
+        onLoadedData={() => {
+          onLoadedData?.();
+        }}
+        onError={() => {
+          onError?.();
+        }}
         onEnded={() => {
           setHasEnded(true);
           onEnded?.();
@@ -178,7 +195,12 @@ export function ManagedInlineVideo({
           {(hasEnded || reducedMotion || playbackBlocked) && (
             <button
               type="button"
-              className="pointer-events-auto inline-flex items-center justify-center rounded-full bg-background/80 px-5 py-3 text-sm font-medium text-foreground shadow-sm backdrop-blur transition hover:bg-background"
+              className={cn(
+                'inline-flex items-center justify-center rounded-full bg-background/80 px-5 py-3 text-sm font-medium text-foreground shadow-sm backdrop-blur transition hover:bg-background',
+                revealReplayOnHover
+                  ? 'pointer-events-none opacity-0 transition-opacity duration-200 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100'
+                  : 'pointer-events-auto',
+              )}
               onClick={() => void playFromStart()}
               aria-label={replayLabel}
             >

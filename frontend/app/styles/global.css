@@ -5,7 +5,7 @@
 @layer base {
   :root {
     /* Shadcn tokens (dark by default, matching the existing look) */
-    --background: 0 0% 2%;
+    --background: 0 0% 0%;
     --foreground: 0 0% 98%;
 
     --card: 240 9% 4%;

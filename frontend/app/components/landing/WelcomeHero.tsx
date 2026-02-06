@@ -1,21 +1,40 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ManagedInlineVideo } from '~/components/media/ManagedInlineVideo';
+import { cn } from '~/lib/utils';
 
 export function WelcomeHero() {
   const [hasEnded, setHasEnded] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoErrored, setVideoErrored] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('matchMedia' in window)) return;
+
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReducedMotion(mediaQuery.matches);
+    update();
+
+    mediaQuery.addEventListener('change', update);
+    return () => mediaQuery.removeEventListener('change', update);
+  }, []);
+
+  const showImage = reducedMotion || videoLoaded || videoErrored || hasEnded;
 
   return (
     <section className="relative h-screen w-full overflow-hidden bg-background">
-      <picture className="absolute inset-0">
-        <source srcSet="/images/welcome.png" type="image/png" />
-        <img
-          src="/images/welcome.png"
-          alt="Welcome iPhone hero"
-          className="h-full w-full object-cover"
-          loading="eager"
-          decoding="async"
-        />
-      </picture>
+      {showImage && (
+        <picture className="absolute inset-0">
+          <source srcSet="/images/welcome.png" type="image/png" />
+          <img
+            src="/images/welcome.png"
+            alt="Welcome iPhone hero"
+            className="h-full w-full object-cover"
+            loading="eager"
+            decoding="async"
+          />
+        </picture>
+      )}
 
       <div className="absolute inset-0">
         <ManagedInlineVideo
@@ -26,10 +45,12 @@ export function WelcomeHero() {
           playsInline
           preload="auto"
           unloadOnEnd
-          className={[
+          className={cn(
             'h-full w-full object-cover transition-opacity duration-500',
             hasEnded ? 'opacity-0' : 'opacity-100',
-          ].join(' ')}
+          )}
+          onLoadedData={() => setVideoLoaded(true)}
+          onError={() => setVideoErrored(true)}
           onEnded={() => setHasEnded(true)}
         />
       </div>
