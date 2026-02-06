@@ -24,6 +24,7 @@ import (
 	_ "github.com/kalen1o/iphone-storage/apps/core-api/docs"
 	"github.com/kalen1o/iphone-storage/apps/core-api/internal/http/middleware"
 	"github.com/kalen1o/iphone-storage/shared/config"
+	"github.com/kalen1o/iphone-storage/shared/kafka"
 	"github.com/kalen1o/iphone-storage/shared/logging"
 
 	authcontroller "github.com/kalen1o/iphone-storage/apps/core-api/internal/auth/controller"
@@ -65,8 +66,11 @@ func main() {
 	productsSvc := productservice.New(productsRepo)
 	productsCtrl := productcontroller.New(productsSvc)
 
+	producer := kafka.NewProducer(cfg.Kafka.Brokers, cfg.Kafka.ClientID)
+	defer func() { _ = producer.Close() }()
+
 	ordersRepo := orderrepo.NewPostgres(pool)
-	ordersSvc := orderservice.New(ordersRepo)
+	ordersSvc := orderservice.New(ordersRepo, producer)
 	ordersCtrl := ordercontroller.New(ordersSvc)
 
 	router := mux.NewRouter()

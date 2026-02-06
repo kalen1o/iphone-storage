@@ -169,6 +169,8 @@ services:
       KAFKA_BROKERS: kafka:9092
       KAFKA_CLIENT_ID: payment-service
       KAFKA_GROUP_ID: payment-service-group
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_dummy}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_dummy}
       LOG_LEVEL: ${LOG_LEVEL:-info}
@@ -177,6 +179,8 @@ services:
       postgres:
         condition: service_healthy
       kafka:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     ports:
       - "8082:8080"

@@ -21,7 +21,10 @@ import (
 	paymentrepo "github.com/kalen1o/iphone-storage/apps/payment-service/internal/payment/repo"
 	paymentservice "github.com/kalen1o/iphone-storage/apps/payment-service/internal/payment/service"
 	"github.com/kalen1o/iphone-storage/shared/config"
+	"github.com/kalen1o/iphone-storage/shared/kafka"
 	"github.com/kalen1o/iphone-storage/shared/logging"
+	"github.com/kalen1o/iphone-storage/shared/redis"
+	"github.com/jackc/pgx/v5/pgxpool"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
@@ -32,18 +35,33 @@ func main() {
 	}
 
 	log := logging.New("payment-service", cfg.Service.Environment)
-	log.Info("service starting (stub)", map[string]any{
+	log.Info("service starting", map[string]any{
 		"kafka_brokers": cfg.Kafka.Brokers,
 		"group_id":      cfg.Kafka.GroupID,
 	})
 
-	r := paymentrepo.New()
-	svc := paymentservice.New(r, log)
+	ctx := context.Background()
+	pool, err := pgxpool.New(ctx, cfg.Database.DSN())
+	if err != nil {
+		log.Error("failed to connect to database", map[string]any{"err": err.Error()})
+		os.Exit(1)
+	}
+	defer pool.Close()
+
+	redisClient := redis.New(cfg.Redis)
+	defer func() { _ = redisClient.Close() }()
+	_ = redis.Ping(ctx, redisClient)
+
+	producer := kafka.NewProducer(cfg.Kafka.Brokers, cfg.Kafka.ClientID)
+	defer func() { _ = producer.Close() }()
+
+	r := paymentrepo.NewPostgres(pool)
+	svc := paymentservice.New(r, redisClient, producer, log)
 	ctrl := paymentcontroller.New(svc)
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
-	ctx, cancel := context.WithCancel(context.Background())
+	runCtx, cancel := context.WithCancel(context.Background())
 	go func() {
 		<-stop
 		cancel()
@@ -72,9 +90,9 @@ func main() {
 	}()
 
 	errCh := make(chan error, 1)
-	go func() { errCh <- ctrl.Run(ctx) }()
+	go func() { errCh <- ctrl.Run(runCtx, cfg.Kafka.Brokers, cfg.Kafka.GroupID) }()
 
-	<-ctx.Done()
+	<-runCtx.Done()
 
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownCancel()

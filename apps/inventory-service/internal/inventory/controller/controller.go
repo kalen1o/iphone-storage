@@ -14,6 +14,6 @@ func New(svc *service.Service) *Controller {
 	return &Controller{svc: svc}
 }
 
-func (c *Controller) Run(ctx context.Context) error {
-	return c.svc.Run(ctx)
+func (c *Controller) Run(ctx context.Context, brokers []string, groupID string) error {
+	return c.svc.Run(ctx, brokers, groupID)
 }
