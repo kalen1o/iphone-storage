@@ -7,6 +7,9 @@ import { useCartStore } from '~/lib/stores/cartStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '~/components/ui/button';
+import { Label } from '~/components/ui/label';
+import { Input } from '~/components/ui/input';
+import { MapCn } from '~/components/ui/mapcn';
 
 type CartItemPayload = { productId: string; quantity: number };
 
@@ -21,6 +24,10 @@ export async function action({ request }: ActionFunctionArgs) {
   }
   const form = await request.formData();
   const itemsRaw = String(form.get('items') || '[]');
+  const shippingAddressText = String(form.get('shipping_address_text') || '');
+  if (!shippingAddressText.trim()) {
+    return json({ error: 'Address is required' }, { status: 400 });
+  }
   let items: CartItemPayload[] = [];
   try {
     items = JSON.parse(itemsRaw);
@@ -32,6 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
     method: 'POST',
     token,
     body: {
+      shipping_address_text: shippingAddressText,
       items: items.map((i) => ({ product_id: i.productId, quantity: i.quantity })),
     },
   });
@@ -56,6 +64,8 @@ export default function Cart() {
   } = useCartStore();
 
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [shippingAddressText, setShippingAddressText] = useState('');
+  const [pickedLngLat, setPickedLngLat] = useState<[number, number] | null>(null);
   const fetcher = useFetcher<typeof action>();
   const navigate = useNavigate();
 
@@ -66,7 +76,7 @@ export default function Cart() {
   const handleCheckout = async () => {
     setIsCheckingOut(true);
     fetcher.submit(
-      { items: JSON.stringify(checkoutPayload) },
+      { items: JSON.stringify(checkoutPayload), shipping_address_text: shippingAddressText },
       { method: 'post' }
     );
   };
@@ -119,7 +129,7 @@ export default function Cart() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
       {/* Cart Content */}
-      <div className="max-w-4xl mx-auto px-6 py-12">
+      <div className="w-full px-6 py-12">
         <h1 className="text-4xl font-bold text-foreground mb-8">
           Shopping Cart ({getItemCount()})
         </h1>
@@ -130,9 +140,9 @@ export default function Cart() {
           </div>
         ) : null}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Cart Items */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="space-y-4">
             <AnimatePresence mode="popLayout">
               {items.map((item) => (
                 <motion.div
@@ -245,13 +255,47 @@ export default function Cart() {
               </div>
             </div>
 
+            <div className="space-y-2 mb-6">
+              <Label htmlFor="shipping_address_text">Shipping address</Label>
+              <Input
+                id="shipping_address_text"
+                name="shipping_address_text"
+                value={shippingAddressText}
+                placeholder="123 Main St, City, State ZIP"
+                required
+                disabled
+              />
+              <p className="text-xs text-muted-foreground">
+                Pick a location on the map to fill this automatically.
+              </p>
+            </div>
+
+            <div className="space-y-2 mb-6">
+              <Label>Pick on map (optional)</Label>
+              <MapCn
+                className="h-56"
+                pickedLngLat={pickedLngLat}
+                onPick={({ lngLat }) => {
+                  setPickedLngLat(lngLat);
+                  setShippingAddressText(`lat:${lngLat[1].toFixed(5)}, lng:${lngLat[0].toFixed(5)}`);
+                }}
+              />
+              {pickedLngLat ? (
+                <p className="text-xs text-muted-foreground">
+                  Pin: {pickedLngLat[1].toFixed(5)}, {pickedLngLat[0].toFixed(5)}
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground">Click the map to drop a pin.</p>
+              )}
+            </div>
+
             {/* Action Buttons */}
             <div className="space-y-3">
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button
                   type="button"
                   onClick={handleCheckout}
-                  disabled={isCheckingOut}
+                  disabled={isCheckingOut || !shippingAddressText.trim()}
                   className="w-full py-6 text-lg rounded-lg"
                 >
                   {isCheckingOut ? 'Processing...' : 'Proceed to Checkout'}

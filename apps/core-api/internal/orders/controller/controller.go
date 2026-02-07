@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -47,6 +48,11 @@ func (c *Controller) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	var input repo.CreateOrderInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		httpjson.WriteError(w, http.StatusBadRequest, "invalid json")
+		return
+	}
+
+	if strings.TrimSpace(input.ShippingAddressText) == "" {
+		httpjson.WriteError(w, http.StatusBadRequest, "shipping_address_text is required")
 		return
 	}
 

@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -20,6 +21,9 @@ func NewPostgres(pool *pgxpool.Pool) *Postgres {
 func (r *Postgres) Create(ctx context.Context, userID uuid.UUID, input CreateOrderInput) (*Order, error) {
 	if len(input.Items) == 0 {
 		return nil, errors.New("order must include at least one item")
+	}
+	if strings.TrimSpace(input.ShippingAddressText) == "" {
+		return nil, errors.New("shipping_address_text is required")
 	}
 
 	tx, err := r.pool.BeginTx(ctx, pgx.TxOptions{})
@@ -62,10 +66,10 @@ func (r *Postgres) Create(ctx context.Context, userID uuid.UUID, input CreateOrd
 
 	var order Order
 	row := tx.QueryRow(ctx, `
-		INSERT INTO orders (user_id, status, subtotal, tax, total, currency, customer_notes)
-		VALUES ($1, 'payment_required', $2, $3, $4, $5, $6)
-		RETURNING id, user_id, status, subtotal::float8, tax::float8, total::float8, currency, COALESCE(customer_notes, ''), created_at, updated_at
-	`, userID, subtotal, tax, total, currency, input.CustomerNotes)
+		INSERT INTO orders (user_id, status, subtotal, tax, total, currency, customer_notes, shipping_address_text)
+		VALUES ($1, 'payment_required', $2, $3, $4, $5, $6, $7)
+		RETURNING id, user_id, status, subtotal::float8, tax::float8, total::float8, currency, COALESCE(customer_notes, ''), shipping_address_text, created_at, updated_at
+	`, userID, subtotal, tax, total, currency, input.CustomerNotes, input.ShippingAddressText)
 
 	if err := row.Scan(
 		&order.ID,
@@ -76,6 +80,7 @@ func (r *Postgres) Create(ctx context.Context, userID uuid.UUID, input CreateOrd
 		&order.Total,
 		&order.Currency,
 		&order.CustomerNotes,
+		&order.ShippingAddressText,
 		&order.CreatedAt,
 		&order.UpdatedAt,
 	); err != nil {
@@ -120,7 +125,7 @@ func (r *Postgres) Create(ctx context.Context, userID uuid.UUID, input CreateOrd
 
 func (r *Postgres) GetByIDForUser(ctx context.Context, orderID, userID uuid.UUID) (*Order, error) {
 	row := r.pool.QueryRow(ctx, `
-		SELECT id, user_id, status, subtotal::float8, tax::float8, total::float8, currency, COALESCE(customer_notes, ''), created_at, updated_at
+		SELECT id, user_id, status, subtotal::float8, tax::float8, total::float8, currency, COALESCE(customer_notes, ''), shipping_address_text, created_at, updated_at
 		FROM orders
 		WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL
 	`, orderID, userID)
@@ -135,6 +140,7 @@ func (r *Postgres) GetByIDForUser(ctx context.Context, orderID, userID uuid.UUID
 		&order.Total,
 		&order.Currency,
 		&order.CustomerNotes,
+		&order.ShippingAddressText,
 		&order.CreatedAt,
 		&order.UpdatedAt,
 	); err != nil {

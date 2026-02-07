@@ -8,17 +8,18 @@ import (
 )
 
 type Order struct {
-	ID            uuid.UUID   `json:"id"`
-	UserID        *uuid.UUID  `json:"user_id,omitempty"`
-	Status        string      `json:"status"`
-	Subtotal      float64     `json:"subtotal"`
-	Tax           float64     `json:"tax"`
-	Total         float64     `json:"total"`
-	Currency      string      `json:"currency"`
-	CustomerNotes string      `json:"customer_notes,omitempty"`
-	Items         []OrderItem `json:"items,omitempty"`
-	CreatedAt     time.Time   `json:"created_at"`
-	UpdatedAt     time.Time   `json:"updated_at"`
+	ID                  uuid.UUID   `json:"id"`
+	UserID              *uuid.UUID  `json:"user_id,omitempty"`
+	Status              string      `json:"status"`
+	Subtotal            float64     `json:"subtotal"`
+	Tax                 float64     `json:"tax"`
+	Total               float64     `json:"total"`
+	Currency            string      `json:"currency"`
+	CustomerNotes       string      `json:"customer_notes,omitempty"`
+	ShippingAddressText string      `json:"shipping_address_text,omitempty"`
+	Items               []OrderItem `json:"items,omitempty"`
+	CreatedAt           time.Time   `json:"created_at"`
+	UpdatedAt           time.Time   `json:"updated_at"`
 }
 
 type OrderItem struct {
@@ -39,8 +40,9 @@ type CreateOrderItemInput struct {
 }
 
 type CreateOrderInput struct {
-	CustomerNotes string                 `json:"customer_notes,omitempty"`
-	Items         []CreateOrderItemInput `json:"items"`
+	CustomerNotes       string                 `json:"customer_notes,omitempty"`
+	ShippingAddressText string                 `json:"shipping_address_text"`
+	Items               []CreateOrderItemInput `json:"items"`
 }
 
 type Repository interface {

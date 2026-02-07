@@ -67,7 +67,7 @@ export default function ProductDetail() {
 
   const canOrder = inStock;
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     setIsAdding(true);
     addToCart({
       productId: product.id,
