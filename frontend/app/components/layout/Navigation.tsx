@@ -1,5 +1,5 @@
 import { Form, Link, useLocation } from "@remix-run/react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useMemo } from "react";
 
 import { NAVIGATION_LINKS } from "~/constants/content";
@@ -26,6 +26,7 @@ function getInitials(user: AuthUser) {
 
 export function Navigation({ user }: { user: AuthUser | null }) {
   const location = useLocation();
+  const reduceMotion = useReducedMotion();
   const redirectTo = useMemo(
     () => `${location.pathname}${location.search}`,
     [location.pathname, location.search]
@@ -39,9 +40,15 @@ export function Navigation({ user }: { user: AuthUser | null }) {
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link to="/" className="text-foreground font-bold text-xl tracking-tight">
-          iPhone 17 Pro Max
-        </Link>
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+        >
+          <Link to="/" className="text-foreground font-bold text-xl tracking-tight">
+            iPhone 17 Pro Max
+          </Link>
+        </motion.div>
 
         <ul className="hidden md:flex items-center gap-8">
           {NAVIGATION_LINKS.map((link, index) => (
@@ -55,7 +62,9 @@ export function Navigation({ user }: { user: AuthUser | null }) {
                 to={link.to}
                 className="text-foreground/70 hover:text-foreground transition-colors text-sm font-medium"
               >
-                {link.label}
+                <motion.span whileHover={reduceMotion ? undefined : { y: -1 }} className="inline-block">
+                  {link.label}
+                </motion.span>
               </Link>
             </motion.li>
           ))}

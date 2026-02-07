@@ -2,11 +2,17 @@ import { Link, useLoaderData } from '@remix-run/react';
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { useCartStore } from '~/lib/stores/cartStore';
 import { apiFetch } from '~/lib/api.server';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
+import {
+  fadeUpVariants,
+  slideLeftVariants,
+  slideRightVariants,
+  staggerContainer,
+} from '~/components/animation/route-motion';
 
 type Product = {
   id: string;
@@ -49,6 +55,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 export default function ProductDetail() {
   const { product, inStock } = useLoaderData<typeof loader>();
   const addToCart = useCartStore((state) => state.addToCart);
+  const reduceMotion = useReducedMotion();
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
@@ -80,15 +87,18 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
+    <motion.div
+      className="min-h-screen bg-gradient-to-b from-background to-secondary"
+      initial={reduceMotion ? false : 'hidden'}
+      animate="visible"
+      variants={staggerContainer(0, 0.08)}
+    >
       {/* Product Details */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           {/* Product Image/Preview */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
+            variants={slideLeftVariants}
             className="relative"
           >
             <div className="aspect-[4/5] bg-black/20 rounded-2xl overflow-hidden">
@@ -113,15 +123,15 @@ export default function ProductDetail() {
 
           {/* Product Info */}
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            variants={staggerContainer(0.05, 0.07)}
+            initial={reduceMotion ? false : 'hidden'}
+            animate="visible"
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+            <motion.h1 variants={slideRightVariants} className="text-4xl md:text-5xl font-bold text-foreground mb-4">
               {product.name}
-            </h1>
+            </motion.h1>
 
-            <div className="mb-6">
+            <motion.div variants={fadeUpVariants} className="mb-6">
               {inStock ? (
                 <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
                   In stock
@@ -131,14 +141,14 @@ export default function ProductDetail() {
                   Out of stock
                 </span>
               )}
-            </div>
+            </motion.div>
 
-            <p className="text-lg text-foreground/80 mb-8">
+            <motion.p variants={fadeUpVariants} className="text-lg text-foreground/80 mb-8">
               {product.description}
-            </p>
+            </motion.p>
 
             {/* Price */}
-            <div className="mb-8">
+            <motion.div variants={fadeUpVariants} className="mb-8">
               <div className="flex items-baseline gap-3">
                 <span className="text-5xl font-bold text-primary">
                   ${product.price.toLocaleString()}
@@ -147,7 +157,7 @@ export default function ProductDetail() {
               <p className="text-sm text-muted-foreground">
                 Or ${Math.round(product.price / 24).toLocaleString()}/month with Apple Card
               </p>
-            </div>
+            </motion.div>
 
             {/* Features */}
             {product.metadata?.features?.length ? (
@@ -157,9 +167,8 @@ export default function ProductDetail() {
                   {product.metadata.features.map((feature, index) => (
                     <motion.li
                       key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1, duration: 0.4 }}
+                      variants={fadeUpVariants}
+                      transition={{ delay: reduceMotion ? 0 : index * 0.06, duration: 0.35 }}
                       className="flex items-center gap-3 text-foreground/90"
                     >
                       <Check className="w-5 h-5 text-primary flex-shrink-0" />
@@ -186,7 +195,7 @@ export default function ProductDetail() {
             ) : null}
 
             {/* Quantity Selector */}
-            <div className="mb-8">
+            <motion.div variants={fadeUpVariants} className="mb-8">
               <Label className="block mb-2">Quantity</Label>
               <div className="flex items-center gap-4">
                 <Button
@@ -213,10 +222,10 @@ export default function ProductDetail() {
                   +
                 </Button>
               </div>
-            </div>
+            </motion.div>
 
             {/* Add to Cart Button */}
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <motion.div variants={fadeUpVariants} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button
                 type="button"
                 onClick={handleAddToCart}
@@ -245,6 +254,6 @@ export default function ProductDetail() {
           </motion.div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

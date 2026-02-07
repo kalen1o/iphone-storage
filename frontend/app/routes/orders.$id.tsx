@@ -4,6 +4,8 @@ import { apiFetch } from '~/lib/api.server';
 import { requireAuthToken } from '~/session.server';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { motion, useReducedMotion } from 'framer-motion';
+import { fadeUpVariants, listItemVariants, staggerContainer } from '~/components/animation/route-motion';
 
 type Order = {
   id: string;
@@ -34,11 +36,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export default function OrderDetail() {
   const { order } = useLoaderData<typeof loader>();
+  const reduceMotion = useReducedMotion();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
+    <motion.div
+      className="min-h-screen bg-gradient-to-b from-background to-secondary"
+      initial={reduceMotion ? false : 'hidden'}
+      animate="visible"
+      variants={staggerContainer(0, 0.08)}
+    >
       <div className="max-w-4xl mx-auto px-6 py-16">
-        <div className="flex items-center justify-between gap-4 mb-10">
+        <motion.div variants={fadeUpVariants} className="flex items-center justify-between gap-4 mb-10">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Order</h1>
             <div className="text-muted-foreground text-sm mt-1">{order.id}</div>
@@ -46,8 +54,9 @@ export default function OrderDetail() {
           <Button asChild variant="ghost">
             <Link to="/products">Continue shopping</Link>
           </Button>
-        </div>
+        </motion.div>
 
+        <motion.div variants={fadeUpVariants}>
         <Card className="rounded-2xl">
           <CardHeader className="pb-4">
             <CardTitle className="text-xl">Summary</CardTitle>
@@ -64,9 +73,14 @@ export default function OrderDetail() {
             </div>
           </div>
 
-          <div className="space-y-3">
+          <motion.div
+            className="space-y-3"
+            variants={staggerContainer(0.05, 0.05)}
+            initial={reduceMotion ? false : 'hidden'}
+            animate="visible"
+          >
             {order.items.map((it) => (
-              <div key={it.id} className="flex items-center justify-between border-t border-border/10 pt-3">
+              <motion.div variants={listItemVariants} key={it.id} className="flex items-center justify-between border-t border-border/10 pt-3">
                 <div>
                   <div className="text-foreground font-medium">{it.product_name}</div>
                   <div className="text-muted-foreground text-xs">{it.product_sku}</div>
@@ -75,9 +89,9 @@ export default function OrderDetail() {
                   {it.quantity} × ${Number(it.unit_price).toLocaleString()} ={' '}
                   <span className="text-foreground font-semibold">${Number(it.total_price).toLocaleString()}</span>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           <div className="border-t border-border/10 mt-6 pt-6 text-foreground">
             <div className="flex justify-between text-foreground/80">
@@ -95,7 +109,8 @@ export default function OrderDetail() {
           </div>
           </CardContent>
         </Card>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

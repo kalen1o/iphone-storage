@@ -4,12 +4,13 @@ import { Link, useFetcher, useNavigate } from '@remix-run/react';
 import { apiFetch } from '~/lib/api.server';
 import { getAuthToken } from '~/session.server';
 import { useCartStore } from '~/lib/stores/cartStore';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
 import { MapCn } from '~/components/ui/mapcn';
+import { fadeScaleVariants, fadeUpVariants, staggerContainer } from '~/components/animation/route-motion';
 
 type CartItemPayload = { productId: string; quantity: number };
 
@@ -68,6 +69,7 @@ export default function Cart() {
   const [pickedLngLat, setPickedLngLat] = useState<[number, number] | null>(null);
   const fetcher = useFetcher<typeof action>();
   const navigate = useNavigate();
+  const reduceMotion = useReducedMotion();
 
   const checkoutPayload = useMemo(() => {
     return items.map((i) => ({ productId: i.productId, quantity: i.quantity }));
@@ -102,8 +104,9 @@ export default function Cart() {
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary flex items-center justify-center">
         <div className="text-center max-w-md px-6">
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
+            variants={fadeScaleVariants}
+            initial={reduceMotion ? false : 'hidden'}
+            animate="visible"
             className="mb-8"
           >
             <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-card/60 border border-border/10 backdrop-blur-lg flex items-center justify-center">
@@ -127,12 +130,17 @@ export default function Cart() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
+    <motion.div
+      className="min-h-screen bg-gradient-to-b from-background to-secondary"
+      initial={reduceMotion ? false : 'hidden'}
+      animate="visible"
+      variants={staggerContainer(0, 0.08)}
+    >
       {/* Cart Content */}
       <div className="w-full px-6 py-12">
-        <h1 className="text-4xl font-bold text-foreground mb-8">
+        <motion.h1 variants={fadeUpVariants} className="text-4xl font-bold text-foreground mb-8">
           Shopping Cart ({getItemCount()})
-        </h1>
+        </motion.h1>
 
         {fetcher.data && 'error' in fetcher.data && fetcher.data.error ? (
           <div className="mb-6 rounded-lg bg-destructive/15 border border-destructive/30 px-4 py-3 text-destructive-foreground text-sm">
@@ -140,7 +148,7 @@ export default function Cart() {
           </div>
         ) : null}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <motion.div className="grid grid-cols-1 lg:grid-cols-2 gap-8" variants={staggerContainer(0.04, 0.08)}>
           {/* Cart Items */}
           <div className="space-y-4">
             <AnimatePresence mode="popLayout">
@@ -322,8 +330,8 @@ export default function Cart() {
               </div>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -4,10 +4,12 @@ import { redirect } from '@remix-run/node';
 import { apiFetch } from '~/lib/api.server';
 import { getSession, sessionStorage } from '~/session.server';
 import type { AuthResponse } from '~/types/auth';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { fadeScaleVariants, fadeUpVariants, staggerContainer } from '~/components/animation/route-motion';
 
 type ActionData = { error?: string };
 
@@ -47,9 +49,21 @@ export default function Register() {
   const data = useActionData<typeof action>();
   const [params] = useSearchParams();
   const redirectTo = params.get('redirectTo') || '/cart';
+  const reduceMotion = useReducedMotion();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary flex items-center justify-center px-6">
+    <motion.div
+      className="min-h-screen bg-gradient-to-b from-background to-secondary flex items-center justify-center px-6"
+      initial={reduceMotion ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
+      <motion.div
+        initial={reduceMotion ? false : 'hidden'}
+        animate="visible"
+        variants={staggerContainer(0, 0.08)}
+      >
+      <motion.div variants={fadeScaleVariants}>
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Create account</CardTitle>
@@ -62,6 +76,7 @@ export default function Register() {
             </div>
           )}
 
+          <motion.div variants={fadeUpVariants}>
           <Form method="post" className="space-y-4">
             <input type="hidden" name="redirectTo" value={redirectTo} />
 
@@ -97,15 +112,18 @@ export default function Register() {
               Create account
             </Button>
           </Form>
+          </motion.div>
 
-          <div className="mt-6 text-sm text-muted-foreground">
+          <motion.div variants={fadeUpVariants} className="mt-6 text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link to={`/login?redirectTo=${encodeURIComponent(redirectTo)}`} className="text-foreground underline">
               Sign in
             </Link>
-          </div>
+          </motion.div>
         </CardContent>
       </Card>
-    </div>
+      </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }

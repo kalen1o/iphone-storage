@@ -1,0 +1,4 @@
+interface:
+  display_name: "Apple Silicon Frontend Modernizer"
+  short_description: "Modernize FE apps with Apple-inspired motion and depth."
+  default_prompt: "Use $apple-silicon-frontend-modernizer to transform this frontend into a modern Apple-inspired animated experience with strong accessibility and performance."
