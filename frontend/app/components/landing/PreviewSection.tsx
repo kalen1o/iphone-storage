@@ -26,7 +26,7 @@ export function PreviewSection({ className }: { className?: string }) {
 
         <div
           className={cn(
-            'overflow-hidden border border-foreground/10 bg-secondary/30',
+            'overflow-hidden border border-foreground/10 bg-secondary/30 shadow-[0_28px_90px_-70px_rgba(0,0,0,0.85)] ring-1 ring-white/5',
             'transition-[border-radius] duration-500',
             hasEnded ? 'rounded-3xl' : 'rounded-2xl',
           )}

@@ -109,10 +109,12 @@ export function ColorPickerSection({ className }: { className?: string }) {
                   type="button"
                   onClick={() => selectColor(option.id)}
                   className={cn(
-                    'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition',
+                    'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm',
+                    'transition-[transform,background-color,border-color,color,box-shadow] duration-200 ease-fx-snappy',
+                    'active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:transform-none',
                     isActive
-                      ? 'border-primary bg-primary text-primary-foreground'
-                      : 'border-foreground/15 bg-background hover:bg-secondary/40',
+                      ? 'border-primary bg-primary text-primary-foreground shadow-[0_18px_56px_-44px_hsl(var(--primary)/0.6)]'
+                      : 'border-foreground/15 bg-background/40 hover:border-foreground/25 hover:bg-secondary/40 hover:shadow-[0_18px_60px_-48px_rgba(0,0,0,0.7)]',
                   )}
                   aria-pressed={isActive}
                 >

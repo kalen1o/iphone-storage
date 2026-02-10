@@ -36,7 +36,8 @@ export function Navigation({ user }: { user: AuthUser | null }) {
     <nav
       className={cn(
         "fixed top-3 left-1/2 z-40 w-[min(calc(100%_-_2rem),80rem)] -translate-x-1/2",
-        "rounded-2xl border border-border/10 bg-background/80 px-6 py-4 shadow-sm backdrop-blur-lg",
+        "rounded-2xl border border-border/10 bg-background/60 px-5 py-3 shadow-[var(--surface-shadow)] backdrop-blur-xl ring-1 ring-white/5",
+        "transition-[background-color,border-color,box-shadow] duration-200 ease-fx-standard motion-reduce:transition-none",
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -54,13 +55,17 @@ export function Navigation({ user }: { user: AuthUser | null }) {
           {NAVIGATION_LINKS.map((link, index) => (
             <motion.li
               key={link.to}
-              initial={{ opacity: 0, y: -10 }}
+              initial={reduceMotion ? false : { opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1, duration: 0.4, ease: "easeOut" }}
             >
               <Link
                 to={link.to}
-                className="text-foreground/70 hover:text-foreground transition-colors text-sm font-medium"
+                className={cn(
+                  "relative text-foreground/70 hover:text-foreground transition-colors text-sm font-medium",
+                  "after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-foreground/40",
+                  "after:transition-transform after:duration-200 after:ease-out hover:after:scale-x-100 motion-reduce:after:transition-none",
+                )}
               >
                 <motion.span whileHover={reduceMotion ? undefined : { y: -1 }} className="inline-block">
                   {link.label}
@@ -73,7 +78,7 @@ export function Navigation({ user }: { user: AuthUser | null }) {
         <div className="flex items-center gap-6">
           <CartIcon />
 
-          <Button asChild className="rounded-lg font-semibold">
+          <Button asChild className="rounded-xl font-semibold">
             <Link to="/products">Shop</Link>
           </Button>
 
@@ -111,7 +116,7 @@ export function Navigation({ user }: { user: AuthUser | null }) {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button asChild variant="ghost" className="rounded-lg">
+            <Button asChild variant="ghost" className="rounded-xl">
               <Link to={`/login?redirectTo=${encodeURIComponent(redirectTo)}`}>Login</Link>
             </Button>
           )}

@@ -37,7 +37,7 @@ export function FeaturesSection() {
   const showImage = reducedMotion || videoLoaded || videoErrored || hasEnded;
 
   return (
-    <section className="relative w-full overflow-hidden bg-background">
+    <section className="relative w-full overflow-hidden">
       {showImage && (
         <picture className="absolute inset-0">
           <source srcSet="/images/feature.png" type="image/png" />
@@ -87,8 +87,9 @@ export function FeaturesSection() {
             <div
               key={feature.title}
               className={cn(
-                'group rounded-2xl border border-foreground/10 bg-background/70 p-6 backdrop-blur w-2/3',
-                'transition duration-200 hover:-translate-y-0.5 hover:border-foreground/20 hover:bg-background/80 hover:shadow-[0_12px_40px_-24px_rgba(255,255,255,0.35)]',
+                'group w-2/3 rounded-2xl border border-foreground/10 bg-background/60 p-6 backdrop-blur-xl ring-1 ring-white/5',
+                'transition-[transform,background-color,border-color,box-shadow] duration-200 ease-fx-standard',
+                'hover:-translate-y-0.5 hover:border-foreground/20 hover:bg-background/70 hover:shadow-[0_26px_90px_-70px_rgba(0,0,0,0.9)]',
                 'motion-reduce:transform-none motion-reduce:transition-none',
               )}
             >

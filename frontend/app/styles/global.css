@@ -34,19 +34,65 @@
     --ring: 192 100% 72%;
 
     --radius: 0.75rem;
+
+    /* Motion + surface tokens (Apple-inspired, but tuned for dark UI) */
+    --fx-duration-fast: 140ms;
+    --fx-duration-base: 220ms;
+    --fx-duration-slow: 320ms;
+    --fx-ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+    --fx-ease-snappy: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --surface-shadow: 0 18px 60px -44px rgba(0, 0, 0, 0.85);
+    --surface-border: rgba(255, 255, 255, 0.14);
+  }
+
+  html {
+    text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased font-sans;
     scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   * {
     @apply border-border/10;
   }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.28);
+  }
 }
 
 @layer utilities {
+  .ease-fx-standard {
+    transition-timing-function: var(--fx-ease-standard);
+  }
+
+  .ease-fx-snappy {
+    transition-timing-function: var(--fx-ease-snappy);
+  }
+
+  .ambient-bg {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .ambient-bg::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(900px circle at 12% 8%, rgba(58, 109, 255, 0.22), transparent 55%),
+      radial-gradient(700px circle at 92% 18%, rgba(111, 227, 255, 0.16), transparent 60%),
+      radial-gradient(900px circle at 50% 120%, rgba(255, 255, 255, 0.06), transparent 55%),
+      linear-gradient(180deg, rgba(10, 10, 12, 0.4), rgba(0, 0, 0, 0.9));
+    pointer-events: none;
+  }
+
   .animate-spin {
     animation: spin 1s linear infinite;
   }
@@ -71,5 +117,17 @@
     50% {
       transform: translateY(12px);
     }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  * {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
   }
 }

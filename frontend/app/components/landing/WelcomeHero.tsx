@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { ManagedInlineVideo } from '~/components/media/ManagedInlineVideo';
 import { cn } from '~/lib/utils';
 
@@ -22,7 +23,7 @@ export function WelcomeHero() {
   const showImage = reducedMotion || videoLoaded || videoErrored || hasEnded;
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-background">
+    <section className="relative h-screen w-full overflow-hidden">
       {showImage && (
         <picture className="absolute inset-0">
           <source srcSet="/images/welcome.png" type="image/png" />
@@ -64,6 +65,10 @@ export function WelcomeHero() {
         <p className="mt-4 max-w-xl text-pretty text-base text-foreground/80 md:text-lg">
           Pro, taken further. Scroll to explore the story.
         </p>
+        <div className="mt-10 inline-flex items-center gap-2 text-xs font-medium tracking-[0.18em] text-foreground/70 uppercase">
+          <span>Scroll</span>
+          <ChevronDown className="h-4 w-4 scroll-prompt motion-reduce:animate-none" aria-hidden="true" />
+        </div>
       </div>
     </section>
   );

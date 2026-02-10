@@ -66,7 +66,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="ambient-bg">
         <Navigation user={user} />
         <main className={isHome ? undefined : 'pt-32'}>
           <Outlet />
