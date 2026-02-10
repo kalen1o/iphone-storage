@@ -10,8 +10,7 @@ export function PreviewSection({ className }: { className?: string }) {
       <div
         className={cn(
           'mx-auto grid w-full max-w-6xl min-h-[100svh] items-center gap-10 px-6 py-16 md:py-24',
-          'transition-[grid-template-columns] duration-500',
-          hasEnded ? 'md:grid-cols-[0.7fr_1.3fr]' : 'md:grid-cols-[0.9fr_1.1fr]',
+          'md:grid-cols-[0.85fr_1.15fr]',
         )}
       >
         <div>
@@ -27,8 +26,10 @@ export function PreviewSection({ className }: { className?: string }) {
         <div
           className={cn(
             'overflow-hidden border border-foreground/10 bg-secondary/30 shadow-[0_28px_90px_-70px_rgba(0,0,0,0.85)] ring-1 ring-white/5',
-            'transition-[border-radius] duration-500',
-            hasEnded ? 'rounded-3xl' : 'rounded-2xl',
+            'rounded-2xl transition-[border-color,background-color,box-shadow,transform] duration-200 ease-out',
+            hasEnded &&
+              'hover:-translate-y-0.5 hover:border-foreground/20 hover:bg-secondary/35 hover:shadow-[0_34px_110px_-78px_rgba(0,0,0,0.95)]',
+            'motion-reduce:transition-none motion-reduce:hover:transform-none',
           )}
         >
           <ManagedInlineVideo
@@ -43,9 +44,11 @@ export function PreviewSection({ className }: { className?: string }) {
             replayLabel="Replay preview"
             replayButtonMode="hover"
             className={cn(
-              'w-full object-cover transition-[aspect-ratio] duration-500',
-              hasEnded ? 'aspect-[4/3]' : 'aspect-video',
+              'w-full aspect-video object-cover',
+              hasEnded &&
+                'will-change-transform transition-transform duration-200 ease-fx-standard group-hover:scale-[1.01] motion-reduce:transition-none motion-reduce:transform-none',
             )}
+            onPlayFromStart={() => setHasEnded(false)}
             onEnded={() => setHasEnded(true)}
           />
         </div>

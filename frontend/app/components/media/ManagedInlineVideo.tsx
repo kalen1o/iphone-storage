@@ -23,6 +23,7 @@ interface ManagedInlineVideoProps {
   unloadOnEnd?: boolean;
   unloadOnLeave?: boolean;
 
+  onPlayFromStart?: () => void;
   onLoadedData?: () => void;
   onError?: () => void;
   onEnded?: () => void;
@@ -49,6 +50,7 @@ export function ManagedInlineVideo({
   replayButtonMode = 'always',
   unloadOnEnd = false,
   unloadOnLeave = false,
+  onPlayFromStart,
   onLoadedData,
   onError,
   onEnded,
@@ -89,6 +91,7 @@ export function ManagedInlineVideo({
       // ignore seek errors
     }
     setHasEnded(false);
+    onPlayFromStart?.();
     try {
       await video.play();
       setPlaybackBlocked(false);

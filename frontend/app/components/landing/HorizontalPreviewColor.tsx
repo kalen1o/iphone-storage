@@ -88,9 +88,8 @@ export function HorizontalPreviewColor() {
   const panelClass = (index: number) =>
     cn(
       enableHorizontal ? 'w-screen flex-none' : 'w-full',
-      enableHorizontal &&
-        (activeIndex === index ? 'scale-[1.02]' : 'scale-[0.96]'),
-      'transform-gpu transition-transform duration-300 ease-out motion-reduce:transform-none motion-reduce:transition-none',
+      enableHorizontal && (activeIndex === index ? 'opacity-100' : 'opacity-90'),
+      'transition-opacity duration-300 ease-out motion-reduce:transition-none',
     );
 
   return (
