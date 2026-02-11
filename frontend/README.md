@@ -83,6 +83,7 @@ pnpm start
 - `pnpm build` - Build for production
 - `pnpm start` - Start production server (http://localhost:3000)
 - `pnpm typecheck` - Run TypeScript type checking
+- `pnpm test` - Run unit tests with Vitest
 
 ## Key Components
 
