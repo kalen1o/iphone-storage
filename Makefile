@@ -8,7 +8,7 @@ help:
 	@echo "  make restart      - Restart all services"
 	@echo "  make logs         - View logs from all services"
 	@echo "  make clean        - Remove all containers and volumes (destructive)"
-	@echo "  make test         - Run Go tests"
+	@echo "  make test         - Run stress test and generate sale flow report"
 	@echo "  make db-migrate   - Run database migrations (init SQL)"
 	@echo "  make db-seed      - Run seed data SQL"
 	@echo "  make kafka-topics - Create Kafka topics"
@@ -52,7 +52,8 @@ kafka-topics:
 	./infrastructure/kafka/topics.sh
 
 test:
-	GOCACHE=/tmp/go-cache GOMODCACHE=/tmp/go-mod go test ./... -v
+	GOCACHE=/tmp/go-cache GOMODCACHE=/tmp/go-mod go test ./apps/inventory-service/internal/inventory/repo -run TestReserve_HighConcurrencyDoesNotOversell -count=1 -v
+	GOCACHE=/tmp/go-cache GOMODCACHE=/tmp/go-mod go test -tags=e2e ./tests/e2e -run TestE2E_OrderToPaymentFlow_GeneratesSaleReport -count=1 -v
 
 swagger:
 	go run github.com/swaggo/swag/cmd/swag@v1.16.4 init --dir apps/core-api --generalInfo cmd/api/main.go -o apps/core-api/docs

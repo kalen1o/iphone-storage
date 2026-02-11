@@ -34,6 +34,7 @@ bd sync               # Sync with git
 
 **CRITICAL RULES:**
 - Do **not** run `git push` unless the user explicitly asks you to
+- Do **not** run `git add`, `git commit`, or auto-stage files unless the user explicitly asks you to
 - If the user asks you to push and it fails, resolve and retry until it succeeds
 
 
