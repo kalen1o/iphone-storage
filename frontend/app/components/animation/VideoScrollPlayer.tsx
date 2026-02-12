@@ -1,14 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 interface VideoScrollPlayerProps {
   progress: number; // 0 to 1
 }
 
-const STORY_SCROLL_SELECTOR = '#story-scroll';
+const STORY_SCROLL_SELECTOR = "#story-scroll";
 
 function prefersReducedMotion(): boolean {
-  if (typeof window === 'undefined' || !('matchMedia' in window)) return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (typeof globalThis.window === "undefined" || !("matchMedia" in globalThis)) {
+    return false;
+  }
+  return globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 function clamp01(value: number): number {
@@ -34,28 +36,20 @@ export function VideoScrollPlayer({ progress }: VideoScrollPlayerProps) {
   const handleVideoRef = (video: HTMLVideoElement | null) => {
     videoRef.current = video;
 
-    if (!video || hasInitialized.current) return;
+    if (!video || hasInitialized.current) {
+      return;
+    }
     hasInitialized.current = true;
 
     const handleReady = () => {
       setIsReady(true);
     };
 
-    const handleError = (e: Event) => {
-      console.error('Video error:', e);
-      const error = (e.target as HTMLVideoElement).error;
-      if (error) {
-        console.error('Video error code:', error.code);
-        console.error('Video error message:', error.message);
-      }
-    };
-
     // Listen for multiple events to ensure we catch when video is ready
-    video.addEventListener('loadedmetadata', handleReady);
-    video.addEventListener('loadeddata', handleReady);
-    video.addEventListener('canplay', handleReady);
-    video.addEventListener('canplaythrough', handleReady);
-    video.addEventListener('error', handleError);
+    video.addEventListener("loadedmetadata", handleReady);
+    video.addEventListener("loadeddata", handleReady);
+    video.addEventListener("canplay", handleReady);
+    video.addEventListener("canplaythrough", handleReady);
 
     // Explicitly trigger video loading
     setTimeout(() => {
@@ -65,23 +59,29 @@ export function VideoScrollPlayer({ progress }: VideoScrollPlayerProps) {
 
   // Optional GSAP-powered smoothing when updating currentTime
   useEffect(() => {
-    if (prefersReducedMotion()) return;
+    if (prefersReducedMotion()) {
+      return;
+    }
 
     const video = videoRef.current;
-    if (!video || !isReady || !video.duration) return;
+    if (!video || !isReady || !video.duration) {
+      return;
+    }
 
     let cancelled = false;
     let quickTo: any = null;
 
     (async () => {
-      const gsapModule: any = await import('gsap');
+      const gsapModule: any = await import("gsap");
       const gsap = gsapModule.gsap ?? gsapModule.default ?? gsapModule;
-      if (cancelled) return;
+      if (cancelled) {
+        return;
+      }
 
-      quickTo = gsap.quickTo(video, 'currentTime', { duration: 0.08, ease: 'none' });
+      quickTo = gsap.quickTo(video, "currentTime", { duration: 0.08, ease: "none" });
       quickSetTimeRef.current = (time: number) => quickTo(time);
-    })().catch((err) => {
-      console.error('Failed to init GSAP video scrubbing:', err);
+    })().catch((error) => {
+      console.error("Failed to init GSAP video scrubbing:", error);
     });
 
     return () => {
@@ -94,7 +94,9 @@ export function VideoScrollPlayer({ progress }: VideoScrollPlayerProps) {
   // Sync video playback position with scroll progress
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !isReady || !video.duration) return;
+    if (!video || !isReady || !video.duration) {
+      return;
+    }
 
     const seekTime = progress * video.duration;
 
@@ -105,7 +107,9 @@ export function VideoScrollPlayer({ progress }: VideoScrollPlayerProps) {
     }
 
     // Debounce seeks to prevent performance issues during rapid scrolling
-    if (isSeeking) return;
+    if (isSeeking) {
+      return;
+    }
 
     // Only seek if difference is significant (prevents unnecessary seeks)
     // 0.05s threshold = 3 frames at 60fps, provides smooth experience
@@ -117,7 +121,7 @@ export function VideoScrollPlayer({ progress }: VideoScrollPlayerProps) {
       const resetSeeking = () => {
         setIsSeeking(false);
       };
-      video.addEventListener('seeked', resetSeeking, { once: true });
+      video.addEventListener("seeked", resetSeeking, { once: true });
     }
   }, [progress, isReady, isSeeking]);
 
@@ -151,7 +155,9 @@ export function useScrollProgress() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof globalThis.window === "undefined") {
+      return;
+    }
 
     const storyEl = document.querySelector(STORY_SCROLL_SELECTOR) as HTMLElement | null;
     if (!storyEl) {
@@ -160,19 +166,19 @@ export function useScrollProgress() {
         const docHeight = document.documentElement.scrollHeight - window.innerHeight;
         setProgress(clamp01(scrollTop / Math.max(1, docHeight)));
       };
-      window.addEventListener('scroll', handleScroll, { passive: true });
+      window.addEventListener("scroll", handleScroll, { passive: true });
       handleScroll();
-      return () => window.removeEventListener('scroll', handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
     }
 
     if (prefersReducedMotion()) {
       const handleScroll = () => setProgress(getElementScrollProgress(storyEl));
-      window.addEventListener('scroll', handleScroll, { passive: true });
-      window.addEventListener('resize', handleScroll);
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      window.addEventListener("resize", handleScroll);
       handleScroll();
       return () => {
-        window.removeEventListener('scroll', handleScroll);
-        window.removeEventListener('resize', handleScroll);
+        window.removeEventListener("scroll", handleScroll);
+        window.removeEventListener("resize", handleScroll);
       };
     }
 
@@ -182,35 +188,37 @@ export function useScrollProgress() {
     const fallback = () => setProgress(getElementScrollProgress(storyEl));
 
     (async () => {
-      const gsapModule: any = await import('gsap');
-      const stModule: any = await import('gsap/ScrollTrigger');
+      const gsapModule: any = await import("gsap");
+      const stModule: any = await import("gsap/ScrollTrigger");
       const gsap = gsapModule.gsap ?? gsapModule.default ?? gsapModule;
       const ScrollTrigger = stModule.ScrollTrigger ?? stModule.default ?? stModule;
 
       gsap.registerPlugin(ScrollTrigger);
-      if (cancelled) return;
+      if (cancelled) {
+        return;
+      }
 
       trigger = ScrollTrigger.create({
-        trigger: storyEl,
-        start: 'top top',
-        end: 'bottom bottom',
+        end: "bottom bottom",
         onUpdate: (self: any) => setProgress(self.progress),
+        start: "top top",
+        trigger: storyEl,
       });
 
       setProgress(trigger?.progress ?? 0);
       ScrollTrigger.refresh();
-    })().catch((err) => {
-      console.error('Failed to init GSAP ScrollTrigger progress:', err);
+    })().catch((error) => {
+      console.error("Failed to init GSAP ScrollTrigger progress:", error);
       fallback();
-      window.addEventListener('scroll', fallback, { passive: true });
-      window.addEventListener('resize', fallback);
+      window.addEventListener("scroll", fallback, { passive: true });
+      window.addEventListener("resize", fallback);
     });
 
     return () => {
       cancelled = true;
       trigger?.kill?.();
-      window.removeEventListener('scroll', fallback);
-      window.removeEventListener('resize', fallback);
+      window.removeEventListener("scroll", fallback);
+      window.removeEventListener("resize", fallback);
     };
   }, []);
 

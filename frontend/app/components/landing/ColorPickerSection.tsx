@@ -1,30 +1,34 @@
-import { useEffect, useRef, useState } from 'react';
-import { cn } from '~/lib/utils';
+import { useEffect, useRef, useState } from "react";
+import { cn } from "~/lib/utils";
 
-type ColorOption = {
+interface ColorOption {
   id: string;
   label: string;
   imageSrc: string;
-};
+}
 
 const COLOR_OPTIONS: ColorOption[] = [
-  { id: 'orange', label: 'Cosmic Orange', imageSrc: '/images/orange.png' },
-  { id: 'white', label: 'Starlight', imageSrc: '/images/white.png' },
-  { id: 'dark', label: 'Midnight', imageSrc: '/images/dark.png' },
+  { id: "orange", imageSrc: "/images/orange.png", label: "Cosmic Orange" },
+  { id: "white", imageSrc: "/images/white.png", label: "Starlight" },
+  { id: "dark", imageSrc: "/images/dark.png", label: "Midnight" },
 ];
 
 export function ColorPickerSection({ className }: { className?: string }) {
-  const [activeId, setActiveId] = useState(COLOR_OPTIONS[0]?.id ?? 'orange');
+  const [activeId, setActiveId] = useState(COLOR_OPTIONS[0]?.id ?? "orange");
   const [shouldPreload, setShouldPreload] = useState(false);
   const sectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (shouldPreload) return;
+    if (shouldPreload) {
+      return;
+    }
 
     const node = sectionRef.current;
-    if (!node) return;
+    if (!node) {
+      return;
+    }
 
-    if (!('IntersectionObserver' in window)) {
+    if (!("IntersectionObserver" in globalThis)) {
       setShouldPreload(true);
       return;
     }
@@ -32,13 +36,15 @@ export function ColorPickerSection({ className }: { className?: string }) {
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
+          if (!entry.isIntersecting) {
+            continue;
+          }
           setShouldPreload(true);
           observer.disconnect();
           break;
         }
       },
-      { root: null, rootMargin: '200px 0px', threshold: 0.01 },
+      { root: null, rootMargin: "200px 0px", threshold: 0.01 },
     );
 
     observer.observe(node);
@@ -46,26 +52,27 @@ export function ColorPickerSection({ className }: { className?: string }) {
   }, [shouldPreload]);
 
   useEffect(() => {
-    if (!shouldPreload) return;
+    if (!shouldPreload) {
+      return;
+    }
 
     const imageSrcs = new Set(COLOR_OPTIONS.map((option) => option.imageSrc));
     for (const src of imageSrcs) {
       const img = new Image();
-      img.decoding = 'async';
+      img.decoding = "async";
       img.src = src;
     }
   }, [shouldPreload]);
 
   const selectColor = (id: string) => {
-    if (id === activeId) return;
+    if (id === activeId) {
+      return;
+    }
     setActiveId(id);
   };
 
   return (
-    <section
-      ref={sectionRef}
-      className={cn('relative w-full overflow-hidden', className)}
-    >
+    <section ref={sectionRef} className={cn("relative w-full overflow-hidden", className)}>
       <div className="absolute inset-0 z-0">
         {shouldPreload &&
           COLOR_OPTIONS.map((option) => {
@@ -78,12 +85,12 @@ export function ColorPickerSection({ className }: { className?: string }) {
                   alt=""
                   aria-hidden={!isActive}
                   className={cn(
-                    'h-full w-full object-cover transition-opacity duration-700',
-                    'scale-[1.05] brightness-75 saturate-125',
-                    isActive ? 'opacity-100' : 'opacity-0',
+                    "h-full w-full object-cover transition-opacity duration-700",
+                    "scale-[1.05] brightness-75 saturate-125",
+                    isActive ? "opacity-100" : "opacity-0",
                   )}
                   draggable={false}
-                  loading={isActive ? 'eager' : 'lazy'}
+                  loading={isActive ? "eager" : "lazy"}
                   decoding="async"
                 />
               </picture>
@@ -109,21 +116,21 @@ export function ColorPickerSection({ className }: { className?: string }) {
                   type="button"
                   onClick={() => selectColor(option.id)}
                   className={cn(
-                    'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm',
-                    'transition-[transform,background-color,border-color,color,box-shadow] duration-200 ease-fx-snappy',
-                    'active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:transform-none',
+                    "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm",
+                    "transition-[transform,background-color,border-color,color,box-shadow] duration-200 ease-fx-snappy",
+                    "active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:transform-none",
                     isActive
-                      ? 'border-primary bg-primary text-primary-foreground shadow-[0_18px_56px_-44px_hsl(var(--primary)/0.6)]'
-                      : 'border-foreground/15 bg-background/40 hover:border-foreground/25 hover:bg-secondary/40 hover:shadow-[0_18px_60px_-48px_rgba(0,0,0,0.7)]',
+                      ? "border-primary bg-primary text-primary-foreground shadow-[0_18px_56px_-44px_hsl(var(--primary)/0.6)]"
+                      : "border-foreground/15 bg-background/40 hover:border-foreground/25 hover:bg-secondary/40 hover:shadow-[0_18px_60px_-48px_rgba(0,0,0,0.7)]",
                   )}
                   aria-pressed={isActive}
                 >
                   <span
                     className={cn(
-                      'h-3 w-3 rounded-full border border-foreground/10',
-                      option.id === 'orange' && 'bg-orange-500',
-                      option.id === 'white' && 'bg-neutral-200',
-                      option.id === 'dark' && 'bg-neutral-800',
+                      "h-3 w-3 rounded-full border border-foreground/10",
+                      option.id === "orange" && "bg-orange-500",
+                      option.id === "white" && "bg-neutral-200",
+                      option.id === "dark" && "bg-neutral-800",
                     )}
                     aria-hidden="true"
                   />

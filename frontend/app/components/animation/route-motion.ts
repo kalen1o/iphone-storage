@@ -1,10 +1,10 @@
-import type { Transition, Variants } from 'framer-motion';
+import type { Transition, Variants } from "framer-motion";
 
 export const springTransition: Transition = {
-  type: 'spring',
-  stiffness: 140,
   damping: 24,
   mass: 0.7,
+  stiffness: 140,
+  type: "spring",
 };
 
 export const smoothTransition: Transition = {
@@ -14,7 +14,7 @@ export const smoothTransition: Transition = {
 
 export const fadeUpVariants: Variants = {
   hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: smoothTransition },
+  visible: { opacity: 1, transition: smoothTransition, y: 0 },
 };
 
 export const fadeScaleVariants: Variants = {
@@ -24,12 +24,12 @@ export const fadeScaleVariants: Variants = {
 
 export const slideLeftVariants: Variants = {
   hidden: { opacity: 0, x: -36 },
-  visible: { opacity: 1, x: 0, transition: smoothTransition },
+  visible: { opacity: 1, transition: smoothTransition, x: 0 },
 };
 
 export const slideRightVariants: Variants = {
   hidden: { opacity: 0, x: 36 },
-  visible: { opacity: 1, x: 0, transition: smoothTransition },
+  visible: { opacity: 1, transition: smoothTransition, x: 0 },
 };
 
 export const staggerContainer = (delayChildren = 0, staggerChildren = 0.08): Variants => ({
@@ -44,5 +44,5 @@ export const staggerContainer = (delayChildren = 0, staggerChildren = 0.08): Var
 
 export const listItemVariants: Variants = {
   hidden: { opacity: 0, y: 12 },
-  visible: { opacity: 1, y: 0, transition: smoothTransition },
+  visible: { opacity: 1, transition: smoothTransition, y: 0 },
 };

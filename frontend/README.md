@@ -82,6 +82,10 @@ pnpm start
 - `pnpm dev` - Start development server (http://localhost:5173)
 - `pnpm build` - Build for production
 - `pnpm start` - Start production server (http://localhost:3000)
+- `pnpm lint` - Run strict OXC lint checks
+- `pnpm lint:fix` - Auto-fix safe OXC lint issues
+- `pnpm format` - Format files with OXC formatter
+- `pnpm format:check` - Validate formatting without writing
 - `pnpm typecheck` - Run TypeScript type checking
 - `pnpm test` - Run unit tests with Vitest
 
@@ -90,6 +94,7 @@ pnpm start
 ### VideoScrollPlayer
 
 Handles video playback synchronized with scroll position. Features:
+
 - Debounced seeking for smooth performance
 - Loading overlay during video initialization
 - Multiple event listeners for reliable initialization
@@ -97,6 +102,7 @@ Handles video playback synchronized with scroll position. Features:
 ### StoryBeat Components
 
 Each story beat (Hero, Engineering, Performance, Camera, Reassembly) has:
+
 - Fade in/out based on scroll position
 - Fixed z-index layering
 - Responsive text sizing
@@ -104,6 +110,7 @@ Each story beat (Hero, Engineering, Performance, Camera, Reassembly) has:
 ### Cart Store (Zustand)
 
 Client-side state management with:
+
 - Add to cart
 - Remove from cart
 - Update quantities
@@ -115,6 +122,7 @@ Client-side state management with:
 ### `/`
 
 Home page with scroll-telling animation featuring:
+
 - Video background synced to scroll
 - Five story beats with overlay content
 - Product CTA section
@@ -122,6 +130,7 @@ Home page with scroll-telling animation featuring:
 ### `/product/iphone-17-pro-max`
 
 Product detail page with:
+
 - Video preview
 - Product specifications
 - Feature list
@@ -131,6 +140,7 @@ Product detail page with:
 ### `/cart`
 
 Shopping cart page with:
+
 - Item list with quantity controls
 - Order summary with calculations
 - Remove items
@@ -185,20 +195,24 @@ Key differences in Remix:
 ## Troubleshooting
 
 ### Video not loading
+
 - Check `/public/videos/iphone-4k.mp4` exists
 - Verify path in VideoScrollPlayer component
 - Check browser console for errors
 
 ### Scroll animation not working
+
 - Ensure container has `h-[400vh]` height
 - Check scroll listener is attached
 - Verify `useScrollProgress` hook is called
 
 ### Cart state not persisting
+
 - Zustand resets on page refresh (expected in Remix)
 - For persistence, implement Remix cookies or localStorage wrapper
 
 ### Build errors
+
 - Run `pnpm install` to ensure dependencies
 - Check TypeScript version compatibility
 - Review console for specific errors

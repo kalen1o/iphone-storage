@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
-import { ManagedInlineVideo } from '~/components/media/ManagedInlineVideo';
-import { cn } from '~/lib/utils';
+import { useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { ManagedInlineVideo } from "~/components/media/ManagedInlineVideo";
+import { cn } from "~/lib/utils";
 
 export function WelcomeHero() {
   const [hasEnded, setHasEnded] = useState(false);
@@ -10,14 +10,16 @@ export function WelcomeHero() {
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !('matchMedia' in window)) return;
+    if (typeof globalThis.window === "undefined" || !("matchMedia" in globalThis)) {
+      return;
+    }
 
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mediaQuery = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setReducedMotion(mediaQuery.matches);
     update();
 
-    mediaQuery.addEventListener('change', update);
-    return () => mediaQuery.removeEventListener('change', update);
+    mediaQuery.addEventListener("change", update);
+    return () => mediaQuery.removeEventListener("change", update);
   }, []);
 
   const showImage = reducedMotion || videoLoaded || videoErrored || hasEnded;
@@ -47,8 +49,8 @@ export function WelcomeHero() {
           preload="auto"
           unloadOnEnd
           className={cn(
-            'h-full w-full object-cover transition-opacity duration-500',
-            hasEnded ? 'opacity-0' : 'opacity-100',
+            "h-full w-full object-cover transition-opacity duration-500",
+            hasEnded ? "opacity-0" : "opacity-100",
           )}
           onLoadedData={() => setVideoLoaded(true)}
           onError={() => setVideoErrored(true)}
@@ -67,7 +69,10 @@ export function WelcomeHero() {
         </p>
         <div className="mt-10 inline-flex items-center gap-2 text-xs font-medium tracking-[0.18em] text-foreground/70 uppercase">
           <span>Scroll</span>
-          <ChevronDown className="h-4 w-4 scroll-prompt motion-reduce:animate-none" aria-hidden="true" />
+          <ChevronDown
+            className="h-4 w-4 scroll-prompt motion-reduce:animate-none"
+            aria-hidden="true"
+          />
         </div>
       </div>
     </section>

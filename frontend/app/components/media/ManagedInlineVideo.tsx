@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { cn } from '~/lib/utils';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { cn } from "~/lib/utils";
 
 interface ManagedInlineVideoProps {
   src: string;
@@ -14,11 +14,11 @@ interface ManagedInlineVideoProps {
   playsInline?: boolean;
   loop?: boolean;
 
-  preload?: 'none' | 'metadata' | 'auto';
+  preload?: "none" | "metadata" | "auto";
 
   showReplayButton?: boolean;
   replayLabel?: string;
-  replayButtonMode?: 'always' | 'hover';
+  replayButtonMode?: "always" | "hover";
 
   unloadOnEnd?: boolean;
   unloadOnLeave?: boolean;
@@ -30,8 +30,10 @@ interface ManagedInlineVideoProps {
 }
 
 function prefersReducedMotion(): boolean {
-  if (typeof window === 'undefined' || !('matchMedia' in window)) return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (typeof globalThis.window === "undefined" || !("matchMedia" in globalThis)) {
+    return false;
+  }
+  return globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 export function ManagedInlineVideo({
@@ -44,10 +46,10 @@ export function ManagedInlineVideo({
   muted = true,
   playsInline = true,
   loop = false,
-  preload = 'none',
+  preload = "none",
   showReplayButton = false,
-  replayLabel = 'Replay',
-  replayButtonMode = 'always',
+  replayLabel = "Replay",
+  replayButtonMode = "always",
   unloadOnEnd = false,
   unloadOnLeave = false,
   onPlayFromStart,
@@ -62,33 +64,41 @@ export function ManagedInlineVideo({
   const [playbackBlocked, setPlaybackBlocked] = useState(false);
 
   const reducedMotion = useMemo(() => prefersReducedMotion(), []);
-  const revealReplayOnHover = replayButtonMode === 'hover' && hasEnded;
+  const revealReplayOnHover = replayButtonMode === "hover" && hasEnded;
 
   const loadSrc = useCallback(() => {
     const video = videoRef.current;
-    if (!video) return;
-    if (video.getAttribute('src') === src) return;
-    video.setAttribute('src', src);
+    if (!video) {
+      return;
+    }
+    if (video.getAttribute("src") === src) {
+      return;
+    }
+    video.setAttribute("src", src);
     video.load();
     setHasLoadedOnce(true);
   }, [src]);
 
   const unloadSrc = useCallback(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video) {
+      return;
+    }
     video.pause();
-    video.removeAttribute('src');
+    video.removeAttribute("src");
     video.load();
   }, []);
 
   const playFromStart = useCallback(async () => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video) {
+      return;
+    }
     loadSrc();
     try {
       video.currentTime = 0;
     } catch {
-      // ignore seek errors
+      // Ignore seek errors
     }
     setHasEnded(false);
     onPlayFromStart?.();
@@ -98,28 +108,44 @@ export function ManagedInlineVideo({
     } catch {
       setPlaybackBlocked(true);
     }
-  }, [loadSrc]);
+  }, [loadSrc, onPlayFromStart]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!autoplay) return;
-    if (reducedMotion) return;
+    if (typeof globalThis.window === "undefined") {
+      return;
+    }
+    if (!autoplay) {
+      return;
+    }
+    if (reducedMotion) {
+      return;
+    }
     void playFromStart();
   }, [autoplay, reducedMotion, playFromStart]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!autoplayInView) return;
-    if (reducedMotion) return;
+    if (typeof globalThis.window === "undefined") {
+      return;
+    }
+    if (!autoplayInView) {
+      return;
+    }
+    if (reducedMotion) {
+      return;
+    }
 
     const el = containerRef.current;
-    if (!el) return;
+    if (!el) {
+      return;
+    }
 
     let hasAutoPlayed = false;
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        if (!entry) return;
+        if (!entry) {
+          return;
+        }
 
         if (entry.isIntersecting && entry.intersectionRatio >= inViewThreshold) {
           if (!hasAutoPlayed) {
@@ -130,7 +156,9 @@ export function ManagedInlineVideo({
         }
 
         const video = videoRef.current;
-        if (!video) return;
+        if (!video) {
+          return;
+        }
         video.pause();
         if (unloadOnLeave && hasEnded) {
           unloadSrc();
@@ -141,22 +169,44 @@ export function ManagedInlineVideo({
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [autoplayInView, inViewThreshold, reducedMotion, playFromStart, unloadOnLeave, hasEnded, unloadSrc]);
+  }, [
+    autoplayInView,
+    inViewThreshold,
+    reducedMotion,
+    playFromStart,
+    unloadOnLeave,
+    hasEnded,
+    unloadSrc,
+  ]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!unloadOnLeave) return;
+    if (typeof globalThis.window === "undefined") {
+      return;
+    }
+    if (!unloadOnLeave) {
+      return;
+    }
 
     const el = containerRef.current;
-    if (!el) return;
+    if (!el) {
+      return;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        if (!entry) return;
-        if (entry.isIntersecting) return;
-        if (!hasLoadedOnce) return;
-        if (!hasEnded) return;
+        if (!entry) {
+          return;
+        }
+        if (entry.isIntersecting) {
+          return;
+        }
+        if (!hasLoadedOnce) {
+          return;
+        }
+        if (!hasEnded) {
+          return;
+        }
         unloadSrc();
       },
       { threshold: [0] },
@@ -169,7 +219,7 @@ export function ManagedInlineVideo({
   return (
     <div
       ref={containerRef}
-      className={cn('relative h-full w-full', replayButtonMode === 'hover' && 'group')}
+      className={cn("relative h-full w-full", replayButtonMode === "hover" && "group")}
     >
       <video
         ref={videoRef}
@@ -189,7 +239,9 @@ export function ManagedInlineVideo({
         onEnded={() => {
           setHasEnded(true);
           onEnded?.();
-          if (unloadOnEnd) unloadSrc();
+          if (unloadOnEnd) {
+            unloadSrc();
+          }
         }}
       />
 
@@ -199,12 +251,14 @@ export function ManagedInlineVideo({
             <button
               type="button"
               className={cn(
-                'inline-flex items-center justify-center rounded-full bg-background/80 px-5 py-3 text-sm font-medium text-foreground shadow-sm backdrop-blur transition hover:bg-background',
+                "inline-flex items-center justify-center rounded-full bg-background/80 px-5 py-3 text-sm font-medium text-foreground shadow-sm backdrop-blur transition hover:bg-background",
                 revealReplayOnHover
-                  ? 'pointer-events-none opacity-0 transition-opacity duration-200 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100'
-                  : 'pointer-events-auto',
+                  ? "pointer-events-none opacity-0 transition-opacity duration-200 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100"
+                  : "pointer-events-auto",
               )}
-              onClick={() => void playFromStart()}
+              onClick={() => {
+                void playFromStart();
+              }}
               aria-label={replayLabel}
             >
               {replayLabel}

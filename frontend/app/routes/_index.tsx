@@ -1,11 +1,11 @@
-import { WelcomeHero } from '~/components/landing/WelcomeHero';
-import { HorizontalPreviewColor } from '~/components/landing/HorizontalPreviewColor';
+import { WelcomeHero } from "~/components/landing/WelcomeHero";
+import { HorizontalPreviewColor } from "~/components/landing/HorizontalPreviewColor";
 
 export function meta() {
   return [
-    { title: 'iPhone 17 Pro Max - The Most Advanced iPhone Ever' },
-    { description: 'Pro, taken further. The most advanced iPhone ever created.' },
-    { viewport: 'width=device-width,initial-scale=1' },
+    { title: "iPhone 17 Pro Max - The Most Advanced iPhone Ever" },
+    { description: "Pro, taken further. The most advanced iPhone ever created." },
+    { viewport: "width=device-width,initial-scale=1" },
   ];
 }
 

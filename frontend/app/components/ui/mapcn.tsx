@@ -11,16 +11,24 @@ const defaultStyles = {
 };
 
 function resolveTheme(): "light" | "dark" {
-  if (typeof document === "undefined") return "light";
-  if (document.documentElement.classList.contains("dark")) return "dark";
-  if (document.documentElement.classList.contains("light")) return "light";
-  if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  if (typeof document === "undefined") {
+    return "light";
+  }
+  if (document.documentElement.classList.contains("dark")) {
+    return "dark";
+  }
+  if (document.documentElement.classList.contains("light")) {
+    return "light";
+  }
+  if (typeof globalThis.window === "undefined") {
+    return "light";
+  }
+  return globalThis.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-export type MapCnPick = {
+export interface MapCnPick {
   lngLat: LngLat;
-};
+}
 
 export function MapCn({
   className,
@@ -47,27 +55,33 @@ export function MapCn({
     let mounted = true;
 
     (async () => {
-      if (!containerRef.current) return;
+      if (!containerRef.current) {
+        return;
+      }
 
       const mod: any = await import("maplibre-gl");
       const maplibre = mod?.default ?? mod;
       maplibreRef.current = maplibre;
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       const map = new maplibre.Map({
+        attributionControl: false,
+        center,
         container: containerRef.current,
         style: styleUrl,
-        center,
         zoom,
-        attributionControl: false,
       });
 
       map.addControl(new maplibre.NavigationControl({ showCompass: true }), "top-right");
       map.addControl(new maplibre.AttributionControl({ compact: true }), "bottom-right");
 
       map.on("load", () => {
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
         setIsReady(true);
       });
 
@@ -95,7 +109,9 @@ export function MapCn({
   }, []);
 
   useEffect(() => {
-    if (!mapRef.current || !pickedLngLat || !maplibreRef.current) return;
+    if (!mapRef.current || !pickedLngLat || !maplibreRef.current) {
+      return;
+    }
 
     if (!markerRef.current) {
       markerRef.current = new maplibreRef.current.Marker({ draggable: true })
@@ -112,7 +128,9 @@ export function MapCn({
   }, [pickedLngLat, onPick]);
 
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current) {
+      return;
+    }
     mapRef.current.jumpTo({ center, zoom });
   }, [center, zoom]);
 
@@ -120,7 +138,7 @@ export function MapCn({
     <div
       className={cn(
         "relative overflow-hidden rounded-xl border border-border/10 bg-card/60 backdrop-blur-lg",
-        className
+        className,
       )}
     >
       <div ref={containerRef} className="h-full w-full" />

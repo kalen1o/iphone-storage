@@ -29,7 +29,7 @@ export function Navigation({ user }: { user: AuthUser | null }) {
   const reduceMotion = useReducedMotion();
   const redirectTo = useMemo(
     () => `${location.pathname}${location.search}`,
-    [location.pathname, location.search]
+    [location.pathname, location.search],
   );
 
   return (
@@ -67,7 +67,10 @@ export function Navigation({ user }: { user: AuthUser | null }) {
                   "after:transition-transform after:duration-200 after:ease-out hover:after:scale-x-100 motion-reduce:after:transition-none",
                 )}
               >
-                <motion.span whileHover={reduceMotion ? undefined : { y: -1 }} className="inline-block">
+                <motion.span
+                  whileHover={reduceMotion ? undefined : { y: -1 }}
+                  className="inline-block"
+                >
                   {link.label}
                 </motion.span>
               </Link>

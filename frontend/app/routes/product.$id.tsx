@@ -1,20 +1,20 @@
-import { Link, useLoaderData } from '@remix-run/react';
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
-import { useCartStore } from '~/lib/stores/cartStore';
-import { apiFetch } from '~/lib/api.server';
-import { motion, useReducedMotion } from 'framer-motion';
-import { useState } from 'react';
-import { Check } from 'lucide-react';
-import { Button } from '~/components/ui/button';
-import { Label } from '~/components/ui/label';
+import { Link, useLoaderData } from "@remix-run/react";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { useCartStore } from "~/lib/stores/cartStore";
+import { apiFetch } from "~/lib/api.server";
+import { motion, useReducedMotion } from "framer-motion";
+import { useState } from "react";
+import { Check } from "lucide-react";
+import { Button } from "~/components/ui/button";
+import { Label } from "~/components/ui/label";
 import {
   fadeUpVariants,
   slideLeftVariants,
   slideRightVariants,
   staggerContainer,
-} from '~/components/animation/route-motion';
+} from "~/components/animation/route-motion";
 
-type Product = {
+interface Product {
   id: string;
   name: string;
   description?: string;
@@ -25,32 +25,32 @@ type Product = {
     features?: string[];
     specifications?: Record<string, string>;
   };
-};
+}
 
-type InventoryResponse = {
+interface InventoryResponse {
   product_id: string;
   in_stock: boolean;
-};
+}
 
 export async function loader({ params }: LoaderFunctionArgs) {
-  if (!params.id) return { product: null as Product | null, inStock: false };
+  if (!params.id) {
+    return { product: null as Product | null, inStock: false };
+  }
   try {
     const [product, inv] = await Promise.all([
       apiFetch<Product>(`/products/${params.id}`),
       apiFetch<InventoryResponse>(`/inventory/${params.id}`),
     ]);
-    return { product, inStock: inv.in_stock };
+    return { inStock: inv.in_stock, product };
   } catch {
-    return { product: null as Product | null, inStock: false };
+    return { inStock: false, product: null as Product | null };
   }
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [
-    { title: data?.product?.name || 'Product Not Found' },
-    { description: data?.product?.description || '' },
-  ];
-};
+export const meta: MetaFunction<typeof loader> = ({ data }) => [
+  { title: data?.product?.name || "Product Not Found" },
+  { description: data?.product?.description || "" },
+];
 
 export default function ProductDetail() {
   const { product, inStock } = useLoaderData<typeof loader>();
@@ -77,11 +77,11 @@ export default function ProductDetail() {
   const handleAddToCart = () => {
     setIsAdding(true);
     addToCart({
+      image: product.images?.[0],
+      name: product.name,
+      price: product.price,
       productId: product.id,
       quantity,
-      price: product.price,
-      name: product.name,
-      image: product.images?.[0],
     });
     setIsAdding(false);
   };
@@ -89,7 +89,7 @@ export default function ProductDetail() {
   return (
     <motion.div
       className="min-h-screen bg-gradient-to-b from-background to-secondary"
-      initial={reduceMotion ? false : 'hidden'}
+      initial={reduceMotion ? false : "hidden"}
       animate="visible"
       variants={staggerContainer(0, 0.08)}
     >
@@ -97,12 +97,9 @@ export default function ProductDetail() {
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           {/* Product Image/Preview */}
-          <motion.div
-            variants={slideLeftVariants}
-            className="relative"
-          >
+          <motion.div variants={slideLeftVariants} className="relative">
             <div className="aspect-[4/5] bg-black/20 rounded-2xl overflow-hidden">
-              {product.images?.[0]?.endsWith('.mp4') ? (
+              {product.images?.[0]?.endsWith(".mp4") ? (
                 <video
                   src={product.images?.[0]}
                   className="w-full h-full object-cover"
@@ -113,7 +110,7 @@ export default function ProductDetail() {
                 />
               ) : (
                 <img
-                  src={product.images?.[0] || '/placeholder.jpg'}
+                  src={product.images?.[0] || "/placeholder.jpg"}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
@@ -124,10 +121,13 @@ export default function ProductDetail() {
           {/* Product Info */}
           <motion.div
             variants={staggerContainer(0.05, 0.07)}
-            initial={reduceMotion ? false : 'hidden'}
+            initial={reduceMotion ? false : "hidden"}
             animate="visible"
           >
-            <motion.h1 variants={slideRightVariants} className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+            <motion.h1
+              variants={slideRightVariants}
+              className="text-4xl md:text-5xl font-bold text-foreground mb-4"
+            >
               {product.name}
             </motion.h1>
 
@@ -166,7 +166,7 @@ export default function ProductDetail() {
                 <ul className="space-y-3">
                   {product.metadata.features.map((feature, index) => (
                     <motion.li
-                      key={index}
+                      key={feature}
                       variants={fadeUpVariants}
                       transition={{ delay: reduceMotion ? 0 : index * 0.06, duration: 0.35 }}
                       className="flex items-center gap-3 text-foreground/90"
@@ -225,7 +225,11 @@ export default function ProductDetail() {
             </motion.div>
 
             {/* Add to Cart Button */}
-            <motion.div variants={fadeUpVariants} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <motion.div
+              variants={fadeUpVariants}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
               <Button
                 type="button"
                 onClick={handleAddToCart}
@@ -238,7 +242,7 @@ export default function ProductDetail() {
                     Adding to Cart...
                   </span>
                 ) : (
-                  'Add to Cart'
+                  "Add to Cart"
                 )}
               </Button>
             </motion.div>

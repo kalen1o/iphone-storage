@@ -8,8 +8,9 @@ describe("cn", () => {
   });
 
   it("skips falsy values while merging classes", () => {
-    expect(cn("font-medium", false && "hidden", undefined, "text-blue-500")).toBe(
-      "font-medium text-blue-500"
+    const hiddenClass: string | false = false;
+    expect(cn("font-medium", hiddenClass, undefined, "text-blue-500")).toBe(
+      "font-medium text-blue-500",
     );
   });
 });

@@ -1,19 +1,19 @@
-import { useEffect, useState } from 'react';
-import { ManagedInlineVideo } from '~/components/media/ManagedInlineVideo';
-import { cn } from '~/lib/utils';
+import { useEffect, useState } from "react";
+import { ManagedInlineVideo } from "~/components/media/ManagedInlineVideo";
+import { cn } from "~/lib/utils";
 
 const FEATURES = [
   {
-    title: 'Fast everywhere',
-    description: 'Smooth scrolling, quick interactions, and responsive animations.',
+    description: "Smooth scrolling, quick interactions, and responsive animations.",
+    title: "Fast everywhere",
   },
   {
-    title: 'Focus on the details',
-    description: 'Crisp visuals and subtle transitions that never feel heavy.',
+    description: "Crisp visuals and subtle transitions that never feel heavy.",
+    title: "Focus on the details",
   },
   {
-    title: 'Designed for motion',
-    description: 'Animations respect accessibility settings and degrade gracefully.',
+    description: "Animations respect accessibility settings and degrade gracefully.",
+    title: "Designed for motion",
   },
 ] as const;
 
@@ -24,14 +24,16 @@ export function FeaturesSection() {
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !('matchMedia' in window)) return;
+    if (typeof globalThis.window === "undefined" || !("matchMedia" in globalThis)) {
+      return;
+    }
 
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mediaQuery = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setReducedMotion(mediaQuery.matches);
     update();
 
-    mediaQuery.addEventListener('change', update);
-    return () => mediaQuery.removeEventListener('change', update);
+    mediaQuery.addEventListener("change", update);
+    return () => mediaQuery.removeEventListener("change", update);
   }, []);
 
   const showImage = reducedMotion || videoLoaded || videoErrored || hasEnded;
@@ -61,8 +63,8 @@ export function FeaturesSection() {
           preload="none"
           unloadOnEnd
           className={cn(
-            'h-full w-full object-cover transition-opacity duration-500',
-            hasEnded ? 'opacity-0' : 'opacity-100',
+            "h-full w-full object-cover transition-opacity duration-500",
+            hasEnded ? "opacity-0" : "opacity-100",
           )}
           onLoadedData={() => setVideoLoaded(true)}
           onError={() => setVideoErrored(true)}
@@ -87,10 +89,10 @@ export function FeaturesSection() {
             <div
               key={feature.title}
               className={cn(
-                'group w-2/3 rounded-2xl border border-foreground/10 bg-background/60 p-6 backdrop-blur-xl ring-1 ring-white/5',
-                'transition-[transform,background-color,border-color,box-shadow] duration-200 ease-fx-standard',
-                'hover:-translate-y-0.5 hover:border-foreground/20 hover:bg-background/70 hover:shadow-[0_26px_90px_-70px_rgba(0,0,0,0.9)]',
-                'motion-reduce:transform-none motion-reduce:transition-none',
+                "group w-2/3 rounded-2xl border border-foreground/10 bg-background/60 p-6 backdrop-blur-xl ring-1 ring-white/5",
+                "transition-[transform,background-color,border-color,box-shadow] duration-200 ease-fx-standard",
+                "hover:-translate-y-0.5 hover:border-foreground/20 hover:bg-background/70 hover:shadow-[0_26px_90px_-70px_rgba(0,0,0,0.9)]",
+                "motion-reduce:transform-none motion-reduce:transition-none",
               )}
             >
               <div className="text-sm font-semibold text-foreground transition-colors group-hover:text-foreground">

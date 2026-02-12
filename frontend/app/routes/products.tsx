@@ -1,16 +1,16 @@
-import type { LoaderFunctionArgs } from '@remix-run/node';
-import { Link, useLoaderData } from '@remix-run/react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { apiFetch } from '~/lib/api.server';
-import { Button } from '~/components/ui/button';
-import { Card } from '~/components/ui/card';
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
+import { motion, useReducedMotion } from "framer-motion";
+import { apiFetch } from "~/lib/api.server";
+import { Button } from "~/components/ui/button";
+import { Card } from "~/components/ui/card";
 import {
   fadeUpVariants,
   listItemVariants,
   staggerContainer,
-} from '~/components/animation/route-motion';
+} from "~/components/animation/route-motion";
 
-type Product = {
+interface Product {
   id: string;
   name: string;
   description?: string;
@@ -18,25 +18,25 @@ type Product = {
   price: number;
   category?: string;
   images?: string[];
-};
+}
 
-type InventoryListResponse = {
+interface InventoryListResponse {
   items: { product_id: string; in_stock: boolean }[];
-};
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
-  const limit = Number(url.searchParams.get('limit') || 50);
-  const offset = Number(url.searchParams.get('offset') || 0);
+  const limit = Number(url.searchParams.get("limit") || 50);
+  const offset = Number(url.searchParams.get("offset") || 0);
 
   const res = await apiFetch<{ items: Product[] }>(`/products?limit=${limit}&offset=${offset}`);
   const productIds = res.items.map((p) => p.id);
 
   let inStockByID: Record<string, boolean> = {};
-  if (productIds.length) {
+  if (productIds.length > 0) {
     try {
       const inv = await apiFetch<InventoryListResponse>(
-        `/inventory?product_ids=${encodeURIComponent(productIds.join(','))}`
+        `/inventory?product_ids=${encodeURIComponent(productIds.join(","))}`,
       );
       inStockByID = Object.fromEntries(inv.items.map((it) => [it.product_id, it.in_stock]));
     } catch {
@@ -44,7 +44,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
   }
 
-  return { items: res.items, inStockByID };
+  return { inStockByID, items: res.items };
 }
 
 export default function Products() {
@@ -54,12 +54,15 @@ export default function Products() {
   return (
     <motion.div
       className="min-h-screen bg-gradient-to-b from-background to-secondary"
-      initial={reduceMotion ? false : 'hidden'}
+      initial={reduceMotion ? false : "hidden"}
       animate="visible"
       variants={staggerContainer(0, 0.08)}
     >
       <div className="max-w-6xl mx-auto px-6 py-16">
-        <motion.div variants={fadeUpVariants} className="flex items-end justify-between gap-6 mb-10">
+        <motion.div
+          variants={fadeUpVariants}
+          className="flex items-end justify-between gap-6 mb-10"
+        >
           <div>
             <h1 className="text-4xl font-bold text-foreground">Products</h1>
             <p className="text-muted-foreground mt-2">Browse products from the backend catalog.</p>
@@ -78,12 +81,9 @@ export default function Products() {
               key={p.id}
               variants={listItemVariants}
               whileHover={reduceMotion ? undefined : { y: -6 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
             >
-              <Link
-                to={`/product/${p.id}`}
-                className="group block"
-              >
+              <Link to={`/product/${p.id}`} className="group block">
                 <Card className="p-6 hover:bg-card/80 transition-colors">
                   <div className="text-muted-foreground text-xs mb-2">{p.sku}</div>
                   <div className="mb-3">
@@ -97,11 +97,15 @@ export default function Products() {
                       </span>
                     )}
                   </div>
-                  <div className="text-xl font-semibold text-foreground mb-2">
-                    {p.name}
+                  <div className="text-xl font-semibold text-foreground mb-2">{p.name}</div>
+                  {p.description && (
+                    <div className="text-muted-foreground text-sm line-clamp-3">
+                      {p.description}
+                    </div>
+                  )}
+                  <div className="mt-5 text-2xl font-bold text-primary">
+                    ${Number(p.price).toLocaleString()}
                   </div>
-                  {p.description && <div className="text-muted-foreground text-sm line-clamp-3">{p.description}</div>}
-                  <div className="mt-5 text-2xl font-bold text-primary">${Number(p.price).toLocaleString()}</div>
                 </Card>
               </Link>
             </motion.div>
