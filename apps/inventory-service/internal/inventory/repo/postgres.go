@@ -59,23 +59,22 @@ func (r *Postgres) Reserve(ctx context.Context, orderID uuid.UUID, items []Order
 			return errors.New("quantity must be > 0")
 		}
 		tag, err := tx.Exec(ctx, `
-			UPDATE inventory
-			SET available = available - $2, reserved = reserved + $2, updated_at = NOW()
-			WHERE product_id = $1 AND available >= $2
-		`, it.ProductID, it.Quantity)
+			WITH updated AS (
+				UPDATE inventory
+				SET available = available - $2, reserved = reserved + $2, updated_at = NOW()
+				WHERE product_id = $1 AND available >= $2
+				RETURNING product_id, available + $2 AS available_before, available AS available_after
+			)
+			INSERT INTO inventory_adjustments (product_id, adjustment_type, quantity, available_before, available_after, reason, reference_id)
+			SELECT product_id, 'sale', $2, available_before, available_after, 'reserved for order', $3
+			FROM updated
+		`, it.ProductID, it.Quantity, orderID)
 		if err != nil {
 			return err
 		}
 		if tag.RowsAffected() != 1 {
 			return ErrOutOfStock
 		}
-
-		_, _ = tx.Exec(ctx, `
-			INSERT INTO inventory_adjustments (product_id, adjustment_type, quantity, available_before, available_after, reason, reference_id)
-			SELECT product_id, 'sale', $2, available + $2, available, 'reserved for order', $3
-			FROM inventory
-			WHERE product_id = $1
-		`, it.ProductID, it.Quantity, orderID)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
@@ -177,4 +176,3 @@ func (r *Postgres) Finalize(ctx context.Context, orderID uuid.UUID) error {
 	}
 	return nil
 }
-

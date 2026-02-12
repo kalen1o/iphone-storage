@@ -19,12 +19,18 @@ type Config struct {
 }
 
 type DatabaseConfig struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
-	DBName   string
-	SSLMode  string
+	Host              string
+	Port              int
+	User              string
+	Password          string
+	DBName            string
+	SSLMode           string
+	MaxConns          int32
+	MinConns          int32
+	MaxConnLifetime   time.Duration
+	MaxConnIdleTime   time.Duration
+	HealthCheckPeriod time.Duration
+	ConnectTimeout    time.Duration
 }
 
 type KafkaConfig struct {
@@ -61,12 +67,18 @@ type RateLimitConfig struct {
 func Load() (*Config, error) {
 	return &Config{
 		Database: DatabaseConfig{
-			Host:     getEnv("DB_HOST", "localhost"),
-			Port:     getEnvAsInt("DB_PORT", 5432),
-			User:     getEnv("DB_USER", "postgres"),
-			Password: getEnv("DB_PASSWORD", ""),
-			DBName:   getEnv("DB_NAME", "online_storage"),
-			SSLMode:  getEnv("DB_SSL_MODE", "disable"),
+			Host:              getEnv("DB_HOST", "localhost"),
+			Port:              getEnvAsInt("DB_PORT", 5432),
+			User:              getEnv("DB_USER", "postgres"),
+			Password:          getEnv("DB_PASSWORD", ""),
+			DBName:            getEnv("DB_NAME", "online_storage"),
+			SSLMode:           getEnv("DB_SSL_MODE", "disable"),
+			MaxConns:          getEnvAsInt32("DB_MAX_CONNS", 25),
+			MinConns:          getEnvAsInt32("DB_MIN_CONNS", 5),
+			MaxConnLifetime:   getEnvAsDuration("DB_MAX_CONN_LIFETIME", time.Hour),
+			MaxConnIdleTime:   getEnvAsDuration("DB_MAX_CONN_IDLE_TIME", 30*time.Minute),
+			HealthCheckPeriod: getEnvAsDuration("DB_HEALTH_CHECK_PERIOD", time.Minute),
+			ConnectTimeout:    getEnvAsDuration("DB_CONNECT_TIMEOUT", 5*time.Second),
 		},
 		Kafka: KafkaConfig{
 			Brokers:  getEnvAsSlice("KAFKA_BROKERS", []string{"localhost:9092"}),
@@ -124,6 +136,15 @@ func getEnvAsInt(key string, defaultValue int) int {
 	return defaultValue
 }
 
+func getEnvAsInt32(key string, defaultValue int32) int32 {
+	if value := os.Getenv(key); value != "" {
+		if intVal, err := strconv.ParseInt(value, 10, 32); err == nil {
+			return int32(intVal)
+		}
+	}
+	return defaultValue
+}
+
 func getEnvAsSlice(key string, defaultValue []string) []string {
 	value := os.Getenv(key)
 	if value == "" {
@@ -151,4 +172,3 @@ func getEnvAsDuration(key string, defaultValue time.Duration) time.Duration {
 	}
 	return defaultValue
 }
-

@@ -20,10 +20,10 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/kalen1o/iphone-storage/apps/core-api/docs"
 	"github.com/kalen1o/iphone-storage/apps/core-api/internal/http/middleware"
 	"github.com/kalen1o/iphone-storage/shared/config"
+	shareddb "github.com/kalen1o/iphone-storage/shared/db"
 	"github.com/kalen1o/iphone-storage/shared/kafka"
 	"github.com/kalen1o/iphone-storage/shared/logging"
 
@@ -52,12 +52,16 @@ func main() {
 	log := logging.New("core-api", cfg.Service.Environment)
 
 	ctx := context.Background()
-	pool, err := pgxpool.New(ctx, cfg.Database.DSN())
+	pool, err := shareddb.NewPool(ctx, cfg.Database)
 	if err != nil {
 		log.Error("failed to connect to database", map[string]any{"err": err.Error()})
 		os.Exit(1)
 	}
 	defer pool.Close()
+	if err := pool.Ping(ctx); err != nil {
+		log.Error("failed to ping database", map[string]any{"err": err.Error()})
+		os.Exit(1)
+	}
 
 	jwt := authservice.NewJWT(cfg.JWT.Secret, cfg.JWT.Expiry)
 

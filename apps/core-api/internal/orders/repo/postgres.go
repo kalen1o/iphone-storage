@@ -39,24 +39,53 @@ func (r *Postgres) Create(ctx context.Context, userID uuid.UUID, input CreateOrd
 		price float64
 	}
 
-	snapshots := make([]productSnapshot, 0, len(input.Items))
-	subtotal := 0.0
-
+	uniqueProductIDs := make([]uuid.UUID, 0, len(input.Items))
+	seenProductIDs := make(map[uuid.UUID]struct{}, len(input.Items))
 	for _, item := range input.Items {
 		if item.Quantity <= 0 {
 			return nil, errors.New("quantity must be > 0")
 		}
-		row := tx.QueryRow(ctx, `
-			SELECT id, name, sku, price::float8
-			FROM products
-			WHERE id = $1 AND deleted_at IS NULL AND is_active = true
-		`, item.ProductID)
+		if _, exists := seenProductIDs[item.ProductID]; exists {
+			continue
+		}
+		seenProductIDs[item.ProductID] = struct{}{}
+		uniqueProductIDs = append(uniqueProductIDs, item.ProductID)
+	}
 
+	productSnapshots := make(map[uuid.UUID]productSnapshot, len(uniqueProductIDs))
+	rows, err := tx.Query(ctx, `
+		SELECT id, name, sku, price::float8
+		FROM products
+		WHERE id = ANY($1::uuid[]) AND deleted_at IS NULL AND is_active = true
+	`, uniqueProductIDs)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
 		var s productSnapshot
-		if err := row.Scan(&s.id, &s.name, &s.sku, &s.price); err != nil {
+		if err := rows.Scan(&s.id, &s.name, &s.sku, &s.price); err != nil {
+			rows.Close()
 			return nil, err
 		}
-		snapshots = append(snapshots, s)
+		productSnapshots[s.id] = s
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return nil, err
+	}
+	rows.Close()
+
+	if len(productSnapshots) != len(uniqueProductIDs) {
+		return nil, pgx.ErrNoRows
+	}
+
+	subtotal := 0.0
+
+	for _, item := range input.Items {
+		s, ok := productSnapshots[item.ProductID]
+		if !ok {
+			return nil, pgx.ErrNoRows
+		}
 		subtotal += s.price * float64(item.Quantity)
 	}
 
@@ -88,8 +117,8 @@ func (r *Postgres) Create(ctx context.Context, userID uuid.UUID, input CreateOrd
 	}
 
 	order.Items = make([]OrderItem, 0, len(input.Items))
-	for i, item := range input.Items {
-		s := snapshots[i]
+	for _, item := range input.Items {
+		s := productSnapshots[item.ProductID]
 		unitPrice := s.price
 		totalPrice := unitPrice * float64(item.Quantity)
 

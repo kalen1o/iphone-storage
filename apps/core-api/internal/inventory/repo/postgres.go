@@ -20,16 +20,11 @@ func (r *Postgres) GetAvailableByProductIDs(ctx context.Context, ids []uuid.UUID
 		return map[uuid.UUID]int{}, nil
 	}
 
-	idStrings := make([]string, 0, len(ids))
-	for _, id := range ids {
-		idStrings = append(idStrings, id.String())
-	}
-
 	rows, err := r.pool.Query(ctx, `
 		SELECT product_id, available
 		FROM inventory
 		WHERE product_id = ANY($1::uuid[])
-	`, idStrings)
+	`, ids)
 	if err != nil {
 		return nil, err
 	}

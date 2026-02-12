@@ -21,10 +21,10 @@ import (
 	inventoryrepo "github.com/kalen1o/iphone-storage/apps/inventory-service/internal/inventory/repo"
 	inventoryservice "github.com/kalen1o/iphone-storage/apps/inventory-service/internal/inventory/service"
 	"github.com/kalen1o/iphone-storage/shared/config"
+	shareddb "github.com/kalen1o/iphone-storage/shared/db"
 	"github.com/kalen1o/iphone-storage/shared/kafka"
 	"github.com/kalen1o/iphone-storage/shared/logging"
 	"github.com/kalen1o/iphone-storage/shared/redis"
-	"github.com/jackc/pgx/v5/pgxpool"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
@@ -41,12 +41,16 @@ func main() {
 	})
 
 	ctx := context.Background()
-	pool, err := pgxpool.New(ctx, cfg.Database.DSN())
+	pool, err := shareddb.NewPool(ctx, cfg.Database)
 	if err != nil {
 		log.Error("failed to connect to database", map[string]any{"err": err.Error()})
 		os.Exit(1)
 	}
 	defer pool.Close()
+	if err := pool.Ping(ctx); err != nil {
+		log.Error("failed to ping database", map[string]any{"err": err.Error()})
+		os.Exit(1)
+	}
 
 	redisClient := redis.New(cfg.Redis)
 	defer func() { _ = redisClient.Close() }()
